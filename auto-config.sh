@@ -140,9 +140,10 @@ login=(
 #                         - rds        bool     : Resolver DNS
 #                         - username   str|null : En caso de que el proxy requiera autenticación, aunque si no lo requiere use "null" en su lugar
 #                         - password   str|null : Rellenar con una contraseña en la autenticación, aunque si no la requiere use "null" en su lugar
+#                         Ejemplo usando tor como proxy: ;a;proxy=list:,dict:;p;proxy_type=str:SOCKS4;p;proxy_addr=str:127.0.0.1;p;proxy_port=int:9050;p;rds=bool:1;p;username=null;p;password=null
 
 proxy=(
-[proxy_list]=';a;proxy=list:,dict:;p;proxy_type=str:SOCKS4;p;proxy_addr=str:127.0.0.1;p;proxy_port=int:9050;p;rds=bool:1;p;username=null;p;password=null' # Usemos el proxy de tor por defecto >:)
+[proxy_list]='0'
 )
 
 # Honeypot:
@@ -176,8 +177,8 @@ honeypot=(
 [regular_expression_for_address]='0'
 [re_options]='2' # Opciones para la búsqueda de patrones; '0', sin opciones.
 [user_agent_black_list]='0'
-[honeypot_list]='127.0.0.1#0;10.42.0.90#0'
-[tools]='2{limit}nmap{program} -T5 -n -r -A --osscan-guess --version-all -Pn -f -vv {ip};1{limit}ping{program} {ip}' # A pesar que el formato lo tengas que definir '<ip>:<port>' obligatoriamente, en las herramientas puedes usarlos como te plazca.
+[honeypot_list]='0'
+[tools]='2{limit}nmap{program} -T5 -n -r -A --osscan-guess --version-all -Pn -f -vv {ip};1{limit}ping{program} -c 4 {ip}' # A pesar que el formato lo tengas que definir '<ip>:<port>' obligatoriamente, en las herramientas puedes usarlos como te plazca.
 [blacklist]='0' 
 )
 
