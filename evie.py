@@ -13,6 +13,7 @@ import ssl
 import random
 import importlib
 import inspect
+import socks
 from urllib.parse import urlparse
 from hashlib import sha1
 from time import strftime, sleep
@@ -31,6 +32,7 @@ from conf import global_conf
 
 from modules.UI import argprogrammer
 from modules.UI import simplelogging as logging
+from modules.Connections import convex
 from modules.Ciphers import POO_RSA
 
 # Utilities
@@ -59,6 +61,8 @@ from utils.sys_utils import separate_space
 from utils.Shows import show_user_admins
 from utils.Shows import show_user_rooks
 from utils.Checks import is_complement
+from utils.sys_utils import convert
+from utils.sys_utils import freplace
 
 # Defend's
 
@@ -259,8 +263,7 @@ def loop_config():
 
                 if (conf_file == {}):
 
-                    print('Aún no se escriben datos en el archivos de configuración ...')
-                    exit_force()
+                    exit_force('Aún no se escriben datos en el archivos de configuración ...')
 
                 else:
 
@@ -276,7 +279,7 @@ def loop_config():
 
                         # Check global config
 
-                        key_detect(conf, ['login', 'server', 'templates', 'honeypot', 'style'])
+                        key_detect(conf, ['proxy', 'login', 'server', 'templates', 'honeypot', 'style'])
 
                         # Style configuration
 
@@ -287,8 +290,7 @@ def loop_config():
                         key_detect(style, ['time', 'log'])
 
                         time = str(style['time'])
-                        logs = int(style['log'])
-                        style_log = 'logs/%s' % (strftime('%H.%m.%S.%d-%m-%Y.log')) if (logs == 1) else False
+                        style_log = 'logs/%s' % (strftime('%H.%m.%S.%d-%m-%Y.log')) if (convert.convert_bool(style['log']) == True) else False
                         logger = logging.logger(output=style_log, time_format=time)
 
                         # Server configuration
@@ -301,24 +303,102 @@ def loop_config():
 
                         realm = str(server['realm'])
                         LHOST = str(server['lhost'])
-                        LPORT = int(server['lport'])
+                        LPORT = convert.convert_int(server['lport'])
                         BaseHTTPRequestHandler.sys_version = str(server['sys_version'])
                         BaseHTTPRequestHandler.server_version = str(server['server_version'])
                         RPATH = str(server['rpath'])
-                        bit_size = int(server['bit_size']) 
-                        resolve_dns = int(server['rdns'])
-                        resolve_port = int(server['rport'])
+                        bit_size = convert.convert_int(server['bit_size']) 
+                        resolve_dns = convert.convert_int(server['rdns'])
+                        resolve_port = convert.convert_int(server['rport'])
+                        cipher_file = convert.convert_bool(server['cipher_file'])
+
+                        # Comunicación
+                        
                         execute_command_to_admin.RULE = str(server['nodes_rule'])
-                        cipher_file = True if (server['cipher_file'] == '1') else False
                         execute_command_to_admin.cipher_file = cipher_file
                         execute_command.cipher_file = cipher_file
                         execute_command.parse_args = complements_info
+
                         if (re.match(r'(?!(RANDOM|STRICT))', execute_command_to_admin.RULE)):
+
                             execute_command_to_admin.RULE = random.choice(['STRICT', 'RANDOM'])
                             logger.log('Regla inválida; Usando "{}" como regla...'.format(execute_command_to_admin.RULE), WAR)
 
-                        execute_public_command.public_service = [x.strip() for x in str(server['public_service']).split(',')] if not (str(server['public_service']) == '0') else False
+                        execute_public_command.public_service = [x.strip() for x in str(server['public_service']).split(',')] if not (convert.convert_bool(server['public_service']) == True) else False
                         execute_public_command.user_agent = str(server['user_agent'])
+
+                        # Proxy configuration
+
+                        proxy = conf['proxy']
+
+                        # Check proxy
+
+                        key_detect(proxy, ['proxy_list'])
+                        proxy_list = proxy['proxy_list']
+
+                        if (convert.convert_bool(proxy_list)):
+
+                            try:
+
+                                proxy_list = convert.convert_dict(proxy_list)
+
+                            except Exception as Except:
+
+                                logger.log('Error parseando los datos. Excepción: {}'.format(Except), COM)
+                                logger.log('No se usara un proxy :/ ...', WAR)
+
+                            else:
+
+                                if (proxy_list.get('proxy') == None):
+
+                                    logger.log('No configuró correctamente los valores de los proxy\'s...', WAR)
+
+                                else:
+
+                                    current_proxy = random.choice(proxy_list['proxy'])
+
+                                    for _ in ['proxy_type', 'proxy_addr', 'proxy_port', 'rds', 'username', 'password']:
+
+                                        if (key_check_in_dict.check(current_proxy, _) == False):
+
+                                            current_proxy = False
+                                            logger.log('{} no está definido...', WAR)
+                                            break
+
+                                    if not (current_proxy == False):
+
+                                        proxy_requirement_type = (isinstance(current_proxy['proxy_type'], str) and current_proxy['proxy_type'] in ['SOCKS4', 'SOCKS5', 'HTTP'])
+                                        proxy_requirement_addr = isinstance(current_proxy['proxy_addr'], str)
+                                        proxy_requirement_port = isinstance(current_proxy['proxy_port'], int)
+                                        proxy_requirement_rds = isinstance(current_proxy['rds'], bool)
+                                        proxy_requirement_username = (isinstance(current_proxy['username'], str) or current_proxy['username'] == None)
+                                        proxy_requirement_password = isinstance(current_proxy['password'], str) or current_proxy['password'] == None
+
+                                        if (proxy_requirement_addr) and (proxy_requirement_port) and (proxy_requirement_rds) and (proxy_requirement_username) and (proxy_requirement_password):
+
+                                            try:
+
+                                                convex.transfor(proxy_type=socks.PROXY_TYPES.get(current_proxy['proxy_type']), proxy_addr='{}:{}'.format(current_proxy['proxy_addr'], current_proxy['proxy_port']), rdns=current_proxy['rds'], username=current_proxy['username'], password=current_proxy['password'])
+                                                
+                                            except Exception as Except:
+
+                                                logger.log('No se pudo configurar el proxy. Excepcion: {}'.format(Except))
+
+                                            else:
+
+                                                logger.log('Proxy: {}://{}:{}'.format(current_proxy['proxy_type'], current_proxy['proxy_addr'], current_proxy['proxy_port']), PER)
+
+                                        else:
+
+                                            logger.log('Algunos tipos de datos no son correctos, por lo tanto no se puede configurar el proxy')
+
+                                    else:
+
+                                        logger.log('No se puede usar un proxy, porque no está siguiendo la especificación acordada', WAR)
+
+                        else:
+
+                            convex.restruct()
 
                         # Log in configuration
 
@@ -328,13 +408,12 @@ def loop_config():
 
                         key_detect(login, ['false_username', 'false_passphrase', 'recover', 'max_retry', 'retry_seconds', 'denied_method'])
                         
-                        max_retry = int(login['max_retry'])
-                        retry_seconds = int(login['retry_seconds'])
+                        max_retry = convert.convert_int(login['max_retry'])
+                        retry_seconds = convert.convert_int(login['retry_seconds'])
                         denied_method = str(login['denied_method'])
                         false_username = str(login['false_username'])
                         false_passphrase = str(login['false_passphrase'])
-                        recover = int(login['recover'])
-                        recover = True if (recover == '1') else False
+                        recover = convert.convert_bool(login['recover'])
 
                         # Simple Honeypot configuration
 
@@ -344,7 +423,7 @@ def loop_config():
 
                         key_detect(simpleHoneypot, ['blacklist', 'honeypot_list', 'tools', 'user_agent_black_list', 'regular_expression_for_address', 'regular_expression_for_userAgent', 're_options'])
 
-                        re_options = int(simpleHoneypot['re_options'])
+                        re_options = convert.convert_int(simpleHoneypot['re_options'])
                         regular_expression_for_address = str(simpleHoneypot['regular_expression_for_address'])
                         regular_expression_for_userAgent = str(simpleHoneypot['regular_expression_for_userAgent'])
                         blacklist = str(simpleHoneypot['blacklist'])
@@ -418,7 +497,7 @@ def loop_config():
 
                         key_detect(templates, ['folder', 'error400', 'error404', 'error403', 'error511', 'credentials', 'webmaster_email', 'error500'])
 
-                        TEMPLATE_FOLDER = templates['folder']
+                        TEMPLATE_FOLDER = str(templates['folder'])
                         TEMPLATE_ERROR400 = '%s/%s' % (TEMPLATE_FOLDER, templates['error400'])
                         TEMPLATE_ERROR404 = '%s/%s' % (TEMPLATE_FOLDER, templates['error404'])
                         TEMPLATE_ERROR403 = '%s/%s' % (TEMPLATE_FOLDER, templates['error403'])
@@ -430,7 +509,8 @@ def loop_config():
                         # Server information
 
                         if (RPATH == 'RANDOM'):
-                            RPATH = token_urlsafe(int(global_conf.token['path_max_length']))
+
+                            RPATH = token_urlsafe(convert.convert_int(global_conf.token['path_max_length']))
 
                         if not (new_conf == True):
                             
@@ -516,13 +596,14 @@ def loop_config():
 
             except Exception as Except:
 
-                print('Ocurrio un Excepción: "{}"'.format(Except))
-                exit_force()
+                raise
+
+                exit_force('Error en la configuración: "{}"'.format(Except))
 
 close = True
-loop_config()
+loop_config() # Ajustamos los valores de forma sincronizada
 close = False
-loop_config_thread = threading.Thread(target=loop_config) # Ahora la ejecutamos como un hilo
+loop_config_thread = threading.Thread(target=loop_config)
 loop_config_thread.start()
 
 class handler(BaseHTTPRequestHandler):
@@ -551,13 +632,13 @@ class handler(BaseHTTPRequestHandler):
             
             return(False)
 
-        list_to_eject = lista.replace(' ', '').split(',')
+        list_to_eject = [x.strip() for x in lista.split(',')]
 
         for _ in list_to_eject:
 
             if (_ == game) or (pattern):
                 
-                self.imprint('Esta en la lista negra %s! ... Tomando medidas!' % (message), WAR)
+                self.imprint('Está en la lista negra %s! ... Tomando medidas!' % (message), WAR)
                 self.error403()
                     
                 return(True)
@@ -580,7 +661,7 @@ class handler(BaseHTTPRequestHandler):
 
             return(False)
 
-        list_to_eject = lista[1:].replace(' ', '').split(',')
+        list_to_eject = [x.strip() for x in lista[1:].split(',')]
 
         ejected = False
 
@@ -609,9 +690,9 @@ class handler(BaseHTTPRequestHandler):
         #Honeypot INIT
         #############################
 
-        if not (honeypot_list == '0'):
+        if not (honeypot_list == '0') or not (honeypot_list == ''):
 
-            hp_list = honeypot_list.split(';')
+            hp_list = [x.strip() for x in honeypot_list.split(';')]
 
             for _ in hp_list:
 
@@ -621,12 +702,12 @@ class handler(BaseHTTPRequestHandler):
 
                     if (host == address_string) or (pattern_for_address):
 
-                        thread = threading.Thread(target=defend.defend, args=(tools, "%s#%s" % (host, port), LPORT))
+                        thread = threading.Thread(target=defend.defend, args=(tools, "%s#%s" % (host, port), LHOST, LPORT))
                         thread.start()
 
                 except ValueError:
 
-                    logger.log('Error con el formato: "%s"' % (_))
+                    logger.log('Error con el formato: "%s"' % (_), WAR)
 
         #Honeypot END
         ##############################
@@ -669,7 +750,18 @@ class handler(BaseHTTPRequestHandler):
 
     def replace_commands(self, text):
 
-        return(text.replace('{lport}', str(LPORT)).replace('{lhost}', LHOST).replace('{server_version}', BaseHTTPRequestHandler.server_version).replace('{sys_version}', BaseHTTPRequestHandler.sys_version).replace('{webmaster_email}', webmaster_email).replace('{cpath}', self.path).replace('{rhost}', self.client_address[0]).replace('{rport}', str(self.client_address[1])))
+        return(
+                freplace.replace(text, [
+                    ('{lhost}', LHOST),
+                    ('{lport}', LPORT),
+                    ('{server_version}', BaseHTTPRequestHandler.server_version),
+                    ('{sys_version}', BaseHTTPRequestHandler.sys_version),
+                    ('{webmaster_email}', webmaster_email),
+                    ('{cpath}', self.path),
+                    ('{rhost}', self.client_address[0]),
+                    ('{rport}', self.client_address[1])]
+                    )
+                )
 
     def error400(self):
 
@@ -745,11 +837,11 @@ class handler(BaseHTTPRequestHandler):
 
             self.do_AUTHHEAD()
 
-        '''except Exception as Except:
+        except Exception as Except:
 
-            self.imprint('Ocurrio una excepción desconocida: "%s". Sí la culpa fue por un error de código, favor de notificar al administrador del proyecto.' % (Except), COM)
+            self.imprint('Ocurrio una excepción desconocida: "{}". Sí la culpa fue por un error de código, favor de notificar al administrador del proyecto.'.format(Except), COM)
 
-            self.error500()'''
+            self.error500()
 
     def do_GET(self):
 

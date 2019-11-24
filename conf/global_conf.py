@@ -1,5 +1,7 @@
 # -*- coding: UTF-8 -*-
 
+import socks
+
 databases = {
 
                 'database'          :   'databases',
@@ -37,14 +39,14 @@ rsa = {
 
 conf = {
 
-            'conf_dir'  :   'conf',
-            'group_name':   'config',
-            'keys'      :   'keys.evk',
-            'conf_file' :   'config.evc',
-            'token'     :   'token.evk',
-            'node_info' :   'nodes-info.evk',
-            'db_passwd' :   'pass',
-            'secret_key':   'secret_key.evk'
+            'conf_dir'      :   'conf',
+            'group_name'    :   'config',
+            'keys'          :   'keys.evk',
+            'conf_file'     :   'config.evc',
+            'token'         :   'token.evk',
+            'node_info'     :   'nodes-info.evk',
+            'db_passwd'     :   'pass',
+            'secret_key'    :   'secret_key.evk'
         
         }
 
@@ -57,7 +59,14 @@ ssl = {
 
 connector = {
             
-                'timeout'       :   300
+                'timeout'           :   300,
+                'use_proxy'         :   True,
+                'proxy_type'        :   socks.PROXY_TYPE_SOCKS4,
+                'proxy_addr'        :   '127.0.0.1',
+                'proxy_port'        :   9050,
+                'proxy_rds'         :   True,
+                'proxy_username'    :   None,
+                'proxy_password'    :   None
             
             }
 
@@ -78,6 +87,8 @@ hashing_length = {
                     'decrement_number'  :   50
         
                 }
+
+# Favor de no tocar
 
 keys_bot = [
 
@@ -118,7 +129,7 @@ keys = keys_bot+keys_admin
 
 privileges = {
 
-                'ALL'           :   'Acceso a todos las acciones',
+                'ALL'           :   'Acceso a todas las acciones',
                 'listBots'      :   'Lista los rook\'s registrados en la base de datos',
                 'getData'       :   'Obtiene los datos recibidos que se almacenan en la base de datos',
                 'getCommands'   :   'Obtiene los comandos a ser ejecutados o ya ejecutados en la base de datos',

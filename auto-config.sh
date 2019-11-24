@@ -38,7 +38,45 @@ declare -A honeypot
 declare -A style
 declare -A templates
 
-# True es 1, False es 0
+# Notas:
+#  * True es 1, False es 0. Si dejas una cadena vacia que requiere un tipo de
+#    dato booleano, será False.
+#  * Hay algunos diccionarios que cierran Evie si no están configurados corr
+#    ectamente, tenga cuidado y trate de evitar errores.
+
+# Server:
+#  ~ Los valores de este diccionario son especificos para mandar
+#    a hacer lo que queramos a Evie (El servidor).
+#
+#  Claves:
+#
+#  - lhost          str  : Definimos la dirección IP/Nombre de host para poner en "Escucha" a Evie
+#  - lport          int  : El puerto para recibir la conexión
+#  - rpath          str  : En el caso de los clientes-administradores (Jacob), se les proporcionará
+#                          una ruta para aumentar un poco más la seguridad. Sí se coloca RANDOM (R
+#                          espetando Mayúsculas), se genera un URL aleatoria segura
+#  - bit_size       int  : El tamaño del par de claves de Evie (El servidor)
+#  - sys_version    str  : La versión del Sistema.
+#  - server_version str  : La versión del Servidor.
+#  - realm          str  : Un pequeño mensaje que se le mostrará al cliente que ingrese al panel
+#                          web falso, especificamente la autencicación HTTP básica.
+#  - rdns           bool : Resolver en DNS del cliente
+#  - rport          bool : Averiguar el servicio utilizado. Ejemplo: 80 (http); Aunque es muy poco
+#                          probable que un cliente esté usando un puerto de esa clase
+#  - public_server  list : Los servicios públicos permitidos.
+#                          En el caso de:
+#                          - getPubKey : Permite dejar que los clientes especificos con su respectivo token de
+#                                        acceso puedan obtener la clave pública del servidor
+#                          - saveData  : Permite guardar los datos de los rook's que alguien desee compartir
+#                          - resend    : Permite que Evie se convierta en un nodo de alguna red
+#                          - sendSOS   : Permitir recibir mensajes
+#  - user_agent    str   : El agente de usuario a utilizar para cuando Evie se convierta en un cliente
+#  - nodes_rule          : La regla de cómo debe actuar el orden de los nodos.
+#                          - RANDOM    : El algoritmo de shuffle se encargará de "ordenar" de forma aleatoria los
+#                                        nodos
+#                          - STRICT    : El orden es estricto, por lo tanto así como se guardaron es como viajara
+#                                        el paquete
+#  - cipher_file   bool  : "True", para cifrar/descifrar los archivos que se envian, "False", lo contrario
 
 server=(
 [lhost]='0.0.0.0'
@@ -47,14 +85,36 @@ server=(
 [bit_size]='2048'
 [sys_version]='(Debian)'
 [server_version]='Apache/2.4.29'
-[realm]='Members only'
+[realm]='Default: admin:admin123'
 [rdns]='1'
 [rport]='1'
 [public_service]='getPubKey, saveData, resend, sendSOS'
 [user_agent]='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'
-[nodes_rule]='RANDOM' # or STRICT
+[nodes_rule]='RANDOM'
 [cipher_file]='1'
 )
+
+# Login:
+#  ~ Este diccionario trata controlar las opciones de inicio de sesión en
+#    Evie (El servidor)
+#
+#  Claves:
+#
+#  - false_username   str  : El nombre de usuario falso para utilizar en el panel de control web falso
+#  - false_passphrase str  : La frase de contraseña falsa para utilizar en el panel de control web falso
+#  - recover          bool : Sí esto es "True", la penultima clave única se podra usar cómo si fuera
+#                            la actual, aunque también se puede usar la actual sin problemas. Esto
+#                            representa un riesgo, ya que si pierde la penulta clave única y alguien
+#                            tiene sus credenciales podrá acceder sin problemas.
+#  - max_retry        int  : Maximo de intentos fallidos antes de bloquear según el método que se
+#                            utilice en denied_method
+#  - retry_seconds    int  : Maximo de segundos para esperar que una dirección pueda acceder denuebo al sistema
+#  - denied_method    str  : El método a usar para la denegación de una entidad
+#                            - forIP    : Deniega por dirección IP. Poco inseguro, porque cualquiera podría usar
+#                                         proxys por cada intento, pero menos molesto.
+#                            - forRetry : Deniega por intentos fallídos según el usuario. Molesto, ya que si
+#                                         alguien tiene nuestro nombre de usuario e intenta hacer fuerza bruta,
+#                                         no sólo bloquearía esa persona, también a tí.
 
 login=(
 [false_username]='admin'
@@ -62,31 +122,91 @@ login=(
 [recover]='1'
 [max_retry]='5'
 [retry_seconds]='80'
-[denied_method]='forIP' # forIP or forRetry
+[denied_method]='forIP'
 )
 
+# Proxy:
+#  ~ Acá controlara la lista de proxys (Sí se van usar), para Evie (El servi
+#    dor).
+#
+#  Claves:
+#   ~ Este diccionario utiliza "Sumerio" como meta-lenguaje para brindar una
+#     sencilla interfaz entre Python y usted (El usuario).
+#  - proxy_list Sumerio : Utiliza "Sumerio" como meta-lenguaje para brindar una sencilla interfaz
+#                         entre Python y usted (El usuario).
+#                         - proxy_type str      : El tipo de proxy a utilizar. Entre ellos están: SOCKS4, SOCKS5 y HTTP
+#                         - proxy_addr str      : La dirección del proxy
+#                         - proxy_port int      : El puerto del proxy
+#                         - rds        bool     : Resolver DNS
+#                         - username   str|null : En caso de que el proxy requiera autenticación, aunque si no lo requiere use "null" en su lugar
+#                         - password   str|null : Rellenar con una contraseña en la autenticación, aunque si no la requiere use "null" en su lugar
+
 proxy=(
-[proxy_type]='SOCKS4'
-[proxy_addr]='127.0.0.1:9050'
-[rds]='1'
-[username]='None'
-[password]='None'
+[proxy_list]=';a;proxy=list:,dict:;p;proxy_type=str:SOCKS4;p;proxy_addr=str:127.0.0.1;p;proxy_port=int:9050;p;rds=bool:1;p;username=null;p;password=null' # Usemos el proxy de tor por defecto >:)
 )
+
+# Honeypot:
+#  ~ No te dejes engañar por el nombre, tiene como objetivo defender a Evie
+#    de un ataque.
+#
+#  Claves:
+#
+#  - regular_expression_for_userAgent str : Las expresiones regulares para la detección de los agentes de usuarios
+#  - regular_expression_for_address   str : Las expresiones regulares para las direcciones IP's
+#  - re_options                       int : Las opciones de las expresiones regulares siguiendo la libraria "re" de
+#                                           Python
+#  - user_agent_black_list            str : La lista negra de los agentes de usuario
+#  - honeypot_list                    str : La lista de direcciones IP's para usar "tools". Sintaxis: <Dirección IP
+#                                           /Nombre de Host>#Puerto
+#  - tools                            str : Las herramientas a ejecutar cuando haya una coincidencia en "honeypot_list".
+#                                           tools, tiene una lista de palabras que reconoce y remplaza por un valor especifico:
+#                                           - limit   : Usada para limitar el uso de la herramienta. Sintaxis: <Limite>{limit}
+#                                           - program : Usada para indicar el programa a utilizar. Sintaxis: <Programa>{program}
+#                                           - ip      : Usada para indicar la dirección IP coincidente con la lista
+#                                                       "honeypot_list". Sintaxis: {ip}
+#                                           - bhost   : Usas la dirección en escucha de Evie (El servidor)
+#                                           - bport   : Usas el puerto de Evie (El servidor)
+#                                           - phost   : Usar la dirección IP pública de este computador
+#                                           Nota: Si no sigue la siguiente sintaxis "<limite>{limit}<programa>{prog
+#                                                 ram} <parámetros>", puede haber un error y no se ejecutara nada
+#  - blacklist                        str : La lista negra para las direcciones IP's permitidas
 
 honeypot=(
 [regular_expression_for_userAgent]='0'
 [regular_expression_for_address]='0'
 [re_options]='2' # Opciones para la búsqueda de patrones; '0', sin opciones.
 [user_agent_black_list]='0'
-[honeypot_list]='0' # Formato: [backlist]='<hostname_ip>#<port>', si colocas '0' como puerto sélo se usara la dirección IP/Nombre de host; Sí esta en 0, no se usan las herramientas.
-[blacklist]='0'
-[tools]='1{limit}nmap{program} -T5 -n -r -A --osscan-guess --version-all -Pn -f -vv {ip}' # A pesar que el formato lo tengas que definir '<ip>:<port>' obligatoriamente, en las herramientas puedes usarlos como te plazca.
+[honeypot_list]='127.0.0.1#0;10.42.0.90#0'
+[tools]='2{limit}nmap{program} -T5 -n -r -A --osscan-guess --version-all -Pn -f -vv {ip};1{limit}ping{program} {ip}' # A pesar que el formato lo tengas que definir '<ip>:<port>' obligatoriamente, en las herramientas puedes usarlos como te plazca.
+[blacklist]='0' 
 )
+
+# Style:
+#  ~ Definir el estilo de algunas cosas
+#
+#  Claves:
+#
+#  - time str  : El formato a usar para la visualización de la fecha
+#  - log  bool : Registrar los mensajes o no
 
 style=(
 [time]='%H:%M:%S ~ %d/%m/%Y'
 [log]='1'
 )
+
+# Templates:
+#  ~ Ajustar los valores de las plantillas falsas
+#
+#  Claves:
+#
+#  - folder          str : La carpeta en donde se encuentran las plantillas
+#  - error404        str : La plantilla para el error HTTP 404
+#  - error403        str : La plantilla para el error HTTP 403
+#  - error511        str : La plantilla para el error HTTP 511
+#  - error400        str : La plantilla para el error HTTP 400
+#  - error500        str : La plantilla para el error HTTP 500
+#  - credentials     str : La plantilla el panel de control web falso
+#  - webmaster_email str : La dirección de correo electrónico falso del administrador de la web
 
 templates=(
 [folder]='templates'
@@ -106,7 +226,7 @@ CTRL_C_DETECT() {
 
 }
 
-trap CTRL_C_DETECT TERM INT
+trap CTRL_C_DETECT TERM INT USR1 USR2
 
 if [[ -f "$evie_config" && -x "$evie_config" && -s "$evie_config" ]];then
 

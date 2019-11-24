@@ -28,6 +28,7 @@ from utils.Checks import check_url
 from utils.Checks import check_headers
 from utils.sys_utils import bytes_convert
 from utils.Checks import key_check_in_dict
+from utils.sys_utils import set_proxy
 
 # Modulos
 
@@ -293,6 +294,8 @@ class bot(object):
         if not (path[0] == '/'):
 
             raise InvalidPath('Error en el path remoto!.')
+
+        set_proxy.autoconf()
 
         #Manejador de claves RSA
         #################################
