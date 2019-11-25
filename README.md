@@ -1,5 +1,7 @@
 # Syndicate Project
-> Syndicate es un Framework totalmente escrito en Python (**3**) para crear Botnet's, así no es sólo para crear una botnet es para crear cientos o miles, además...
+> Syndicate es un Framework totalmente escrito en Python (**3**) para crear Botnet's, así es, no es sólo para crear una botnet es para crear cientos o miles, además...
+
+Tratare de englobar todas las caracteristicas posibles de Syndicate, espero no me falté nada :)...
 
 ## Caracteristicas
 
@@ -9,7 +11,8 @@
 * Multi-usuario. El administrador del servidor se encargá de crear tanto usuarios Jacob's cómo Evie's.
 * Compartir Rook's entre Evie's
 * Comunicación por servidores o lo que quiere decir, que creando una red entre Evie's puedes hacer pasar cada paquete a una dirección o podría decirse nodos intermedios hasta llegar a un punto final o nodo final. La red está diseñada para que no se pueda saber que dirección envío qué y dónde, exceptuando algunas cosas, pero que ya explicaré después y además se tiene que configurar toda la red manualmente; Eso brinda más seguridad.
-*
+* Uso de proxy's para mayor privacidad.
+* Sistema antí fuerza bruta: Esto es relativo. Relativo según las configuraciones que ejerce el administrador y el mismo usuario. porque el administrdor decide cómo **Evie**, va a bloquear a un usuario, cuándo y porqué. Dejaré la explicación más adelante.
 
 ### Tipos de configuración
 
@@ -28,10 +31,34 @@ En syndicate project trato de implementar diferencias entre usuarios para simpli
 * **Rook**: El cliente-bot que se encarga de hacer lo que le pida **Jacob**
 * **Public**: Yo no diría que es un usuario en sí, se podría decir que es un cliente que quiere usar nuestros servicios públicos cómo:
 
-* getPubKey: Obtener nuestra clave pública del servidor (**Evie**); Puede tener muchos fines esta operación, pero la más importante es cuando compartirmos un rook y éste requiere de la clave pública a el servidor que lo compartimos.
-* saveData: Guarda los datos de perfil del rook
-* resend: Re-envía datos a otro nodo, tanto un nodo final como podría ser un nodo intermedio
-* sendSOS: Comunicación estilo correo electrónico entre Evie's (Inclusó envío de archivos)
+  - getPubKey: Obtener nuestra clave pública del servidor (**Evie**); Puede tener muchos fines esta operación, pero la más importante es cuando compartirmos un rook y éste requiere de la clave pública a el servidor que lo compartimos.
+  - saveData: Guarda los datos de perfil del rook
+  - resend: Re-envía datos a otro nodo, tanto un nodo final como podría ser un nodo intermedio
+  - sendSOS: Comunicación estilo correo electrónico entre Evie's (Inclusó envío de archivos)
+
+## Aclaraciones
+
+Tengo que explicar algunas cosas, para que no haya perdidas de tiempo:
+
+* **Redirector**: Es un **Rook** que pasa hacer un **servidor** (No un **Evie**) dentro de la máquina infectada; consiste en crear un servidor capaz de recibir datos, almacenarlos en una base de datos cifrada dentro de la misma máquina victima, para que luego el administrador del servidor, pueda conectarse, descargar los datos y simular ser **Evie**, con el único fín de obtener un resultado y enviarselo a un rook de forma transparante o como si no fuera sucedido nada.
+
+El redirector es mejor usarlo, cuando deseas crear un "Backup" dentro de las máquinas infectadas *¿Por qué?*, ¿Te imaginas que tu servidor central callerá? y luego cuando lo vuelvas a lenvantar ya es muy tardé, no tienes como recuperar la perdida de datos; hay es cuando entra redirector al rescate.
+
+* **Hash dinámico**: En syndicate se usa un **Hash dinámico**, para hacer todo lo posble para evitar 
+
+## 
+
+## Funcionamiento de la Red
+
+Algunas veces es mejor dejar una simulación en vez de palabras, por lo tanto [Aquí](https://onodo.org/visualizations/98665), podrá encontrar el cómo sería la red con todas las caracteristicas.
+
+Ahora pasemos a la explicación: Es sencilla la red, hay que saber usarla y cuándo, pero para poder entenderla hay que crear desde un principio lo que necesitamos e ir aumentando.
+
+Primero crearemos un **Jacob** (Administrador de los Rook's):
+
+```bash
+./addadmin.py -u <Nombre de usuario> -p <Frase de contraseña> -P <Frase de contraseña de la clave privada>
+```
 
 ## Plataformas
 
@@ -75,9 +102,10 @@ Un último requerimiento más para los complementos predeterminados sería "PyAu
 En el caso de **Windows**:
 
 Seleccione la versión correspondiente: [PyAudio](https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio)
+
 En mi caso es: PyAudio‑0.2.11‑cp37‑cp37m‑win32.whl
 
-Mientras que en Linux:
+Mientras que en **Linux**:
 
 sudo apt-get install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0
 sudo apt-get install ffmpeg
