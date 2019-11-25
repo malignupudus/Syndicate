@@ -290,7 +290,7 @@ def execute(data, admin, log, reply):
 
                 # [False, command], donde "False", qué quiere decir que aún no se ejecuta ese comando
 
-                if (wrap.write(value[0], 'commands', [False, _cmd], separate=True) == True):
+                if (wrap.write(bot_id, 'commands', [False, _cmd], separate=True) == True):
 
                     result = log.logger('Se agrego el comando: "{}"'.format(_cmd), debug.PER)
             
@@ -614,7 +614,7 @@ def execute(data, admin, log, reply):
 
             else:
 
-                if (len(node) != 2):
+                if (len(node) != 3):
 
                     result = log.logger('La longitud del nodo no es correcta', debug.WAR)
                     execute = False
@@ -709,7 +709,7 @@ def execute(data, admin, log, reply):
 
                                 log.logger('Borrando el nodo -> {} (ID:{})'.format(_node_to_delete, node), debug.COM)
 
-                                if (wrap.write(node, 'list', action, agent=wrap.USE_NODE, target=wrap.TARGET_DELETE_INDEX, separate=True) == True):
+                                if (wrap.write(node, 'list', action, agent=wrap.USE_NODE, target=wrap.TARGET_DELETE_INDEX) == True):
 
                                     result = log.logger('Borrado: "{}" (ID:{})'.format(_node_to_delete, node), debug.WAR)
 
@@ -748,7 +748,7 @@ def execute(data, admin, log, reply):
         else:
 
             node_id = str(value[0])
-            value_ = value[1]
+            value_ = str(value[1])
             _index = check_int.check(value[2], False)
             _subindex = check_int.check(value[3], False)
 
@@ -768,9 +768,25 @@ def execute(data, admin, log, reply):
 
                 log.logger('Actualizando nodo: "ID:{}"'.format(node_id), debug.PER)
 
+                _get_nodes = wrap.read(node_id, 'list', agent=wrap.USE_NODE)[-1]
+
+                if (_index == -1) or (_index == len(_get_nodes)-1):
+
+                    if (_subindex != 0):
+
+                        return(False, log.logger('No puedes actualizar ningún dato del nodo final al menos que sea la dirección URL', debug.WAR))
+
+                if (_subindex == 0):
+
+                    log.logger('Actualizará la dirección URL de un nodo...', debug.WAR)
+
+                    if (check_url.check(value_, log) == True):
+
+                        return(False, log.logger('La dirección URL no es válida', debug.WAR))
+
                 if (wrap.write(node_id, 'list', value_, agent=wrap.USE_NODE, target=wrap.TARGET_SUBINDEX_UPDATE, array_subindex=(_index, _subindex)) == True):
 
-                    result = log.logger('Nodo (ID:{}) actualizado con exito'.format(node_id), debug.PER)
+                    result = log.logger('Nodo (ID:{}) actualizado con éxito'.format(node_id), debug.PER)
 
                 else:
 

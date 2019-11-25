@@ -1,7 +1,4 @@
-from colorama import init # Windows
 from time import strftime
-
-init()
 
 # Simple Colors
 
@@ -23,7 +20,7 @@ def output_func(string, path):
 
 class logger(object):
 
-    def __init__(self, prompt='Evie', output=False, _format='\033[1m\033[33m[\033[0m%s:%s\033[1m\033[33m]\033[0m\033[1m\033[32:\033[0m\033[1m\033[37m-%s', time_format='%H:%M:%S'): 
+    def __init__(self, prompt='Evie', output=False, _format='\033[1;33m[\033[0m%s:%s\033[1;33m]\033[0m\033[1;32m:\033[0m\033[1;37m-%s', time_format='%H:%M:%S'): 
 
         self._format = _format
         self._format_bak = _format
@@ -58,6 +55,7 @@ class logger(object):
         self.register_time = True
         
         if (self.register_time == True):
+
             self.time_for_console = self.FG_YELLOW % ('(') + self.FG_GREEN % ('%s') + NORMAL + self.FG_YELLOW % (')')
             self.time_format = time_format
 

@@ -143,7 +143,7 @@ login=(
 #                         Ejemplo usando tor como proxy: ;a;proxy=list:,dict:;p;proxy_type=str:SOCKS4;p;proxy_addr=str:127.0.0.1;p;proxy_port=int:9050;p;rds=bool:1;p;username=null;p;password=null
 
 proxy=(
-[proxy_list]='0'
+[proxy_list]=';a;proxy=list:,dict:;p;proxy_type=str:SOCKS4;p;proxy_addr=str:127.0.0.1;p;proxy_port=int:9050;p;rds=bool:1;p;username=null;p;password=null'
 )
 
 # Honeypot:
@@ -157,28 +157,29 @@ proxy=(
 #  - re_options                       int : Las opciones de las expresiones regulares siguiendo la libraria "re" de
 #                                           Python
 #  - user_agent_black_list            str : La lista negra de los agentes de usuario
-#  - honeypot_list                    str : La lista de direcciones IP's para usar "tools". Sintaxis: <Dirección IP
-#                                           /Nombre de Host>#Puerto
+#  - honeypot_list                    str : La lista de direcciones IP's para usar herramientas del sistema. Sintaxis: <Dirección IP>, <Otra Dirección IP>, <¿Otra?>
 #  - tools                            str : Las herramientas a ejecutar cuando haya una coincidencia en "honeypot_list".
 #                                           tools, tiene una lista de palabras que reconoce y remplaza por un valor especifico:
-#                                           - limit   : Usada para limitar el uso de la herramienta. Sintaxis: <Limite>{limit}
-#                                           - program : Usada para indicar el programa a utilizar. Sintaxis: <Programa>{program}
 #                                           - ip      : Usada para indicar la dirección IP coincidente con la lista
 #                                                       "honeypot_list". Sintaxis: {ip}
+#                                           - port    : 
 #                                           - bhost   : Usas la dirección en escucha de Evie (El servidor)
 #                                           - bport   : Usas el puerto de Evie (El servidor)
-#                                           - phost   : Usar la dirección IP pública de este computador
-#                                           Nota: Si no sigue la siguiente sintaxis "<limite>{limit}<programa>{prog
-#                                                 ram} <parámetros>", puede haber un error y no se ejecutara nada
-#  - blacklist                        str : La lista negra para las direcciones IP's permitidas
+#                                           - phost   : Usar la dirección IP pública de este computador (Requiere de conexión a internet, de lo contrario se usará la local)
+#                                           Nota: Si no sigue la siguiente sintaxis "<limite> <programa>  <parámetros>", puede haber un error y no se ejecutara nada
+#  - blacklist                        str : La lista negra para las direcciones IP's permitidas. Sigue la misma sintaxis que "honeypot_list"
+#
+#  Notas:
+#
+#  * Si usa "!" como primer carácter, significa que si una dirección IP cualquiera no se encuentra en esa lista, se procede a hacer una operación
 
 honeypot=(
 [regular_expression_for_userAgent]='0'
 [regular_expression_for_address]='0'
 [re_options]='2' # Opciones para la búsqueda de patrones; '0', sin opciones.
-[user_agent_black_list]='0'
+[user_agent_black_list]='jessssus'
 [honeypot_list]='0'
-[tools]='2{limit}nmap{program} -T5 -n -r -A --osscan-guess --version-all -Pn -f -vv {ip};1{limit}ping{program} -c 4 {ip}' # A pesar que el formato lo tengas que definir '<ip>:<port>' obligatoriamente, en las herramientas puedes usarlos como te plazca.
+[tools]='2 nmap -T5 -n -r -A --osscan-guess --version-all -Pn -f -vv {ip};1 ping -c 4 {ip}' 
 [blacklist]='0' 
 )
 
@@ -188,7 +189,7 @@ honeypot=(
 #  Claves:
 #
 #  - time str  : El formato a usar para la visualización de la fecha
-#  - log  bool : Registrar los mensajes o no
+#  - log  bool : Registrar los mensajes o no en el almacenamiento
 
 style=(
 [time]='%H:%M:%S ~ %d/%m/%Y'

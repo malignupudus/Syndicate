@@ -4,7 +4,7 @@ from modules.Ciphers import aes
 from utils.Ciphers import generate_uniqkey
 
 from zlib import compress, decompress
-from yaml import load, dump
+from yaml import safe_load as load, safe_dump as dump
 from base64 import b64encode, b64decode
 
 encode = lambda string: b64encode(string)

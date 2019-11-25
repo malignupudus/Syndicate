@@ -97,7 +97,7 @@ def execute(data, log):
 
         log.logger('Construyendo perfil de un rook ...', debug.INF)
 
-        if not (isinstance(value, tuple)):
+        if not (isinstance(value, list)):
 
             log.logger('¡El tipo de dato no es correcto!', debug.WAR)
 

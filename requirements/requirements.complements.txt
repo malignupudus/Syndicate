@@ -1,0 +1,14 @@
+# Aquí les mostrare como instalar los requerimientos para los complemento
+# s. No es necesario instalarlos para que funcione correctamente, pero si
+# no quiere instalarlos se encontrara con un dilema, no podrá usar los compl
+# ementos pero ahorrara espacio si desea compilar a un ejecutable portabl
+# e su carga útil.
+#
+# ~ DtxdF
+
+requests==2.22.0
+pynput==1.4.5
+six==1.13.0
+python-xlib==0.25
+pygame==1.9.6
+mss==4.0.3

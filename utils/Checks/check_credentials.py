@@ -5,11 +5,11 @@ from utils.Wrappers import wrap
 from utils.UI import debug
 from utils.sys_utils import pos_convert
 from utils.Extracts.extract_ips import _extract
+from utils.sys_utils import convert
 
 from modules.Ciphers import db_hash
 
 from time import time
-from yaml import load
 
 from conf import global_conf
 
@@ -17,6 +17,12 @@ hashing_length = global_conf.hashing_length
 _server_error_message = 'Hubo un error interno analizando el metodo de denegación ...'
 
 def check(passphrase, bot_id, log, address, max_retry, retry_seconds, denied_method, rdns, iterations, chars, decrement_number, security_number):
+
+    for _ in [passphrase, bot_id, iterations, chars, decrement_number, security_number]:
+
+        if not (convert.convert_bool(_)):
+
+            return(False)
 
     passphrase = str(passphrase)
     bot_id = str(bot_id)
@@ -31,7 +37,7 @@ def check(passphrase, bot_id, log, address, max_retry, retry_seconds, denied_met
         decrement_number = pos_convert.convert(int(decrement_number))
         security_number = pos_convert.convert(int(security_number))
 
-    except ValueError:
+    except (TypeError, ValueError):
 
         log1.logger('No se introdujo un tipo de dato correcto en un parámetro ...', debug.COM)
 

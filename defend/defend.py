@@ -3,9 +3,10 @@ from time import strftime
 from hashlib import sha1
 from inspect import isfunction
 import shlex
-import copy
 import shelve
 
+from utils.UI import debug
+from utils.sys_utils import convert
 from utils.sys_utils import my_addr, my_public_addr
 from utils.Wrappers import wrap
 
@@ -18,14 +19,14 @@ def output_func(string, name):
     open("defend/logs/%s" % (name), 'a').write(str(string))
     print(str(string), end='')
 
-def defend(command, address, bhost, bport):
+def defend(command, address, bhost, bport, log):
 
     try:
 
         bhost = str(bhost)
         bport = str(bport)
-        commands = [x.strip() for x in command.split(';')]
-        (host, port) = address.split('#')
+        commands = [x.strip() for x in command.split(';') if (convert.convert_bool(x))]
+        (host, port) = address
 
         # Bind
 
@@ -33,7 +34,18 @@ def defend(command, address, bhost, bport):
 
         for b_ in commands:
 
-            cmd = copy.copy(b_)
+            cmd = b_
+
+            try:
+
+                limit = int(cmd.split(None, 1)[0])
+
+            except:
+
+                log('¡El limite debe ser un número!', debug.WAR)
+                return
+
+            cmd = ''.join(cmd.split(None, 1)[1:]).strip()
 
             for _key, _value in {'{ip}':host, '{port}':port, '{bhost}':bhost, '{bport}':bport, '{phost}':my_public_addr.addr}.items():
 
@@ -45,11 +57,6 @@ def defend(command, address, bhost, bport):
 
                     cmd = cmd.replace(_key, _value)
 
-            limit = int(cmd.split('{limit}')[0])
-            cmd = cmd.replace('%d{limit}' % (limit), '')
-            program = cmd.split('{program}')[0]
-            cmd = cmd.replace('{program}','')
-            
             uniqid = sha1(cmd.encode()).hexdigest()
             db_result = int(wrap.read(uniqid, 'limit', agent=wrap.USE_DEFEND))
 
@@ -59,7 +66,7 @@ def defend(command, address, bhost, bport):
 
                     if (wrap.add(uniqid, {'limit':1}, agent=wrap.USE_DEFEND) == False):
 
-                        print('Lo siento no se pudo agregar un limite al almacén para la siguiente defensa: "{}"'.format(cmd))
+                        log('Lo siento no se pudo agregar un limite al almacén para la siguiente defensa: "{}"'.format(cmd), debug.COM)
 
                         return
 
@@ -71,25 +78,25 @@ def defend(command, address, bhost, bport):
 
                     if (wrap.write(uniqid, 'limit', db_result+1, agent=wrap.USE_DEFEND) == False):
 
-                        print('No se pudo actualizar el limite en el almacén para la siguiente defensa: "{}"'.format(cmd))
+                        log('No se pudo actualizar el limite en el almacén para la siguiente defensa: "{}"'.format(cmd), debug.COM)
 
                         return
 
-            args = shlex.split(cmd)
+            parsed = shlex.split(cmd)
 
             try:
 
-                result = Popen(args, stdout=PIPE, stderr=STDOUT, universal_newlines=True)
+                result = Popen(parsed, stdout=PIPE, stderr=STDOUT, universal_newlines=True)
 
             except FileNotFoundError:
 
-                print('El ejecutable: "{}" no se puede ejecutar porque existe ...'.format(args[0]))
+                log('El ejecutable: "{}" no se puede ejecutar porque no existe ...'.format(parsed[0]), debug.WAR)
 
                 return
             
             except Exception as Except:
 
-                print('Ocurrio un error desconocido al ejecutar el siguiente comando: "{}". Excepción: "{}"'.format(cmd, Except))
+                log('Ocurrio un error desconocido al ejecutar el siguiente comando: "{}". Excepción: "{}"'.format(cmd, Except), debug.WAR)
 
                 return
             
@@ -102,10 +109,10 @@ def defend(command, address, bhost, bport):
 
                 for c_ in _process.stdout:
 
-                    output_func("\033[1;34m%s\033[0m: \033[1m%s\033[0m\n" % (program, c_.rstrip()), name)
+                    output_func("\033[1;34m%s\033[0m: \033[1m%s\033[0m\n" % (parsed[0], c_.rstrip()), name)
             
             output_func('\033[1;37m***\033[0m \033[1;32mFinalizado\033[0m: \033[1;33mID\033[0m:\033[1;37m%s\033[0m: \033[1;33mpid\033[0m:\033[1;37m%d\033[0m \033[1;34m~\033[0m \033[1;33mfile\033[0m:\033[1;37m%s ***\033[0m\n' % (uniqid, pid, name), name)
 
-    except:
+    except Exception as Except:
 
-        pass
+        log('Excepción ejecutando la defensa: {}'.format(Except), debug.COM)

@@ -1,4 +1,4 @@
-def check(value, length, type=tuple):
+def check(value, length, type=list):
 
     if not (isinstance(value, type) == True):
 

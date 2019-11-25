@@ -5,7 +5,7 @@ import rook
 import os
 import re
 import threading
-from inspect import isfunction
+from inspect import ismethod
 from time import sleep
 
 from modules.UI import argprogrammer
@@ -67,7 +67,7 @@ def loop(rook_instance, sleep_check):
 
                                 try:
 
-                                    if (isfunction(getattr(rook_instance, key))):
+                                    if (ismethod(getattr(rook_instance, key))):
 
                                         print('SUCCESS: Ejecutando: "{}"'.format(key))
 

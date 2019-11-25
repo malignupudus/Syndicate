@@ -1,7 +1,7 @@
 import requests
 from hashlib import sha1
 from urllib3 import disable_warnings
-from yaml import load, dump
+from yaml import safe_load as load, safe_dump as dump
 
 from utils.Ciphers import simplycrypt
 from utils.Wrappers import wrap

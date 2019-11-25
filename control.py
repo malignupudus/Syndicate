@@ -96,6 +96,7 @@ _new_value = ''
 session_is = False
 session_index = 0
 sessions = wrap.read('sessions', 'session', agent=wrap.USE_SESSION)
+separate_string = lambda string: [x for x in str(string)]
 
 if (sessions == []) or (sessions == False):
 
@@ -742,11 +743,11 @@ def login():
 
                 _current_session = sessions[session_index]
 
-                _keys[0][1] = '\00'.join(_current_session['username']).split('\00')
-                _keys[2][1] = '\00'.join(_current_session['uniqkey']).split('\00')
-                _keys[3][1] = '\00'.join(_current_session['server']).split('\00')
-                _keys[4][1] = '\00'.join(_current_session['pub_key']).split('\00')
-                _keys[5][1] = '\00'.join(_current_session['priv_key']).split('\00')
+                _keys[0][1] = separate_string(_current_session['username'])
+                _keys[2][1] = separate_string(_current_session['uniqkey'])
+                _keys[3][1] = separate_string(_current_session['server'])
+                _keys[4][1] = separate_string(_current_session['pub_key'])
+                _keys[5][1] = separate_string(_current_session['priv_key'])
 
             elif (_key == curses.KEY_DOWN) or (_key == 9):
 
@@ -1244,7 +1245,7 @@ def _simplyArchitecture(window, panel, label, value, y_label, y_value):
 
     while (True):
 
-        _custom = '\00'.join(value).split('\00')
+        _custom = separate_string(value)
         value = ''.join(_custom)
 
         window.erase()
@@ -1401,18 +1402,27 @@ def _update_listBots(window, jacob_obj, limits=0, pattern=''):
 
         elif not (_bots[1][0] == False):
 
-            _bot_num = 1
+            if (isinstance(_bots[1][1], dict)):
 
-            for _key, _value in _bots[1][1].items():
+                _bot_num = 1
 
-                text = '%d):~ %s - (%s)\n' % (_bot_num, _key, _value)
+                for _key, _value in _bots[1][1].items():
 
-                window.addstr(text, use_color(1)+curses.A_BOLD)
-                _bot_num += 1
+                    text = '%d):~ %s - (%s)\n' % (_bot_num, _key, _value)
 
-                if (len(text) > _max_text):
+                    window.addstr(text, use_color(1)+curses.A_BOLD)
+                    _bot_num += 1
 
-                    _max_text = len(text)
+                    if (len(text) > _max_text):
+
+                        _max_text = len(text)
+
+            else:
+
+                savetty()
+                print('¡Error parseando los datos!')
+                refresh(stdscr)
+                return(False)
 
     except Exception as Except:
 
@@ -1440,6 +1450,24 @@ def _update_uniqkey(uniqkey):
 
     return(wrap.write('sessions', 'session', uniqkey, target=wrap.TARGET_SUBINDEX_UPDATE, array_subindex=(session_index, 'uniqkey'), agent=wrap.USE_SESSION))
 
+def catch(func):
+    
+    def execute(*args, **kwargs):
+
+        try:
+
+            return(func(*args, **kwargs))
+
+        except Exception as Except:
+
+            savetty()
+            print('Oops..., Ocurrio una excepción: {}'.format(Except))
+            refresh(stdscr)
+            return(False)
+
+    return(execute)
+
+@catch
 def interact(jacob_obj):
 
     global _max_text, _updated, _exit
@@ -1904,7 +1932,16 @@ def interact(jacob_obj):
 
                                 else:
 
-                                    _control.addNode(_node_id, [_node_to_add, _node_to_add_token])
+
+                                    _node_to_add_secret_key = _simplyArchitecture(pop_window, panel_pop_window, 'Clave secreta:', _node_to_add_secret_key, 1, 3)
+
+                                    if (_node_to_add_secret_key == ''):
+
+                                        message.append('¡No se introdujo ninguna clave secreta!')
+
+                                    else:
+
+                                        _control.addNode(_node_id, [_node_to_add, _node_to_add_token, _node_to_add_secret_key])
 
                     elif (_cmd == 'delnodes'):
 
@@ -2066,7 +2103,7 @@ def interact(jacob_obj):
 
                             if not (os.path.exists(_filename)):
 
-                                messagea.append('El archivo/directorio no existe ...')
+                                message.append('El archivo/directorio no existe ...')
 
                             else:
 
@@ -2343,12 +2380,22 @@ def main(std):
         set_color(4, curses.COLOR_WHITE, curses.COLOR_WHITE)
 
         stdscr.bkgd(use_color(1)+curses.A_BOLD)
+
+        try:
         
-        _result = login()
+            _result = login()
 
-        if not (_result == False):
+        except curses.error:
 
-            interact(_result)
+            savetty()
+            print('Error dibujando...')
+            refresh(stdscr)
+
+        else:
+
+            if not (_result == False):
+
+                interact(_result)
 
     end()
     

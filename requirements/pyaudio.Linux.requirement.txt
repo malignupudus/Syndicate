@@ -1,0 +1,8 @@
+# Para instalar pyaudio
+# En linux se ejecuta primero:
+#  sudo apt-get install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0
+#  sudo apt-get install ffmpeg
+#  sudo pip install PyAudio==0.2.11
+# En Windows se descarga e instala "manualmente"
+#  Seleccione la versión correspondiente: https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio
+#  En mi caso es: PyAudio‑0.2.11‑cp37‑cp37m‑win32.whl

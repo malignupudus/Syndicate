@@ -14,14 +14,16 @@ import random
 import importlib
 import inspect
 import socks
+import subprocess
+from pager import getchars
 from urllib.parse import urlparse
 from hashlib import sha1
 from time import strftime, sleep
-from os import makedirs, getpid, kill, listdir
+from os import makedirs, getpid, kill, listdir, name as get_os_name
 from os.path import isdir, isfile
 from uuid import uuid4
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from base64 import b64encode
+from base64 import b64encode, b64decode
 from secrets import token_urlsafe
 
 # Configuration
@@ -78,6 +80,9 @@ list_complements = listdir(complement_path)
 
 key_not_found_message = 'La clave "%s" no existe por favor configurala para continuar ...'
 
+# Variables globales
+
+init = False
 conf_hash = None
 new_conf = True
 log_error_bool = False
@@ -85,8 +90,18 @@ token = None
 new_token = False
 secret_key = None
 new_secret_key = False
-close = False
 use_keys = True
+request_count = 0
+request_count_safe = {
+        
+                        'GET':0,
+                        'POST':0,
+                        'AUTH':0,
+                        'HEAD':0,
+                        'user_agent_BLOCK':0,
+                        'address_BLOCK':0
+        
+                    }
 
 def exit_force(message=None):
     
@@ -215,13 +230,13 @@ def generate_keys(size):
 
     return({'public_key':pub_key, 'private_key':priv_key})
 
-def loop_config():
+def loop_config(close=False):
 
         # Globals vars
 
         # Globals
 
-        global conf_hash, new_conf, close, use_keys
+        global conf_hash, new_conf, use_keys, init
 
         # Server
 
@@ -455,7 +470,7 @@ def loop_config():
                                 except ValueError:
 
                                     logger.log('Error desencriptado la clave privada ...', COM)
-                                    close = True
+                                    exit_force()
 
                                 else:
 
@@ -536,7 +551,7 @@ def loop_config():
                         else:
 
                             logger.log('Error generando la clave secreta ...', COM)
-                            close = True
+                            exit_force()
 
                     else:
 
@@ -570,7 +585,7 @@ def loop_config():
                         else:
 
                             logger.log('Error generando el token de acceso ...', COM)
-                            close = True
+                            exit_force()
 
                     else:
 
@@ -592,19 +607,67 @@ def loop_config():
 
                     break
 
+                else:
+
+                    init = True
+
                 sleep(1)
 
             except Exception as Except:
 
-                raise
-
                 exit_force('Error en la configuración: "{}"'.format(Except))
 
-close = True
-loop_config() # Ajustamos los valores de forma sincronizada
-close = False
+def get_info():
+
+    while (True):
+
+        try:
+
+            key = getchars()
+
+        except KeyboardInterrupt:
+
+            break
+
+        else:
+
+            if (init == True):
+
+                key = ''.join(key)
+
+                if (key == '\n'): # ENTER
+
+                    logger.log('Escuchando en :: %s://%s:%d/%s' % (proto, LHOST, LPORT, RPATH), PER)
+
+                elif (key == '\x12'): # CTRL-R
+
+                    logger.log('Total de peticiones hechas: %d' % (request_count))
+
+                elif (key == '\x0e'): # CTRL-N
+
+                    logger.log('GET:%d ~ POST:%d ~ HEAD:%d ~ AUTH:%d ~ Address:(BLOCK:%d) ~ User-Agent:(BLOCK:%d)' % (
+                                                                            request_count_safe.get('GET'),
+                                                                            request_count_safe.get('POST'),
+                                                                            request_count_safe.get('HEAD'),
+                                                                            request_count_safe.get('AUTH'),
+                                                                            request_count_safe.get('address_BLOCK'),
+                                                                            request_count_safe.get('user_agent_BLOCK')
+                                                                            
+                                                                        ))
+                else:
+
+                    logger.log('{} es una tecla inválida, presiona otra vez...'.format(repr(key)), COM)
+
+
+loop_config(True) # Ajustamos los valores de forma sincronizada
+
 loop_config_thread = threading.Thread(target=loop_config)
+loop_config_thread.setDaemon(True)
 loop_config_thread.start()
+
+get_info_thread = threading.Thread(target=get_info)
+get_info_thread.setDaemon(True)
+get_info_thread.start()
 
 class handler(BaseHTTPRequestHandler):
 
@@ -614,141 +677,105 @@ class handler(BaseHTTPRequestHandler):
 
         log.logger(message, code)
 
-    def eject_if(self, tipo, lista, address, user_agent, patterns):
+    @staticmethod
+    def get_contrary(string):
 
-        if (tipo == 'address'):
+        return(True if (string[0] == '!') else False)
 
-            pattern = patterns[0]
-            game = address
-            message = 'por direcciones'
+    def get_real_list(self, string):
 
-        elif (tipo == 'user_agent'):
+        return(string[1:] if (self.get_contrary(string) == True) else string)
 
-            pattern = patterns[1]
-            game = user_agent
-            message = 'por agente de usuario (%s)' % (game)
+    @staticmethod
+    def get_pattern(string, regular_expression, log):
 
-        else:
-            
-            return(False)
+        if (convert.convert_bool(regular_expression) == True):
 
-        list_to_eject = [x.strip() for x in lista.split(',')]
+            try:
 
-        for _ in list_to_eject:
+                pattern = re.search(regular_expression, string, re_options)
 
-            if (_ == game) or (pattern):
-                
-                self.imprint('Está en la lista negra %s! ... Tomando medidas!' % (message), WAR)
-                self.error403()
-                    
-                return(True)
+            except Exception as Except:
 
-    def eject_if_not(self, tipo, lista, address, user_agent, patterns):
+                pattern = False
+                log('Excepción en la expresión regular: "{}". Excepción: "{}"'.format(repr(regular_expression), Except), WAR)
 
-        if (tipo == 'address'):
+            else:
 
-            pattern = patterns[0]
-            game = address
-            message = 'por direcciones'
+                if (pattern):
 
-        elif (tipo == 'user_agent'):
-
-            pattern = patterns[1]
-            game = user_agent
-            message = 'por agentes de usuario (%s)' % (game)
+                    log('Coincidencia {} en {}'.format(regular_expression, string), PER)
 
         else:
 
-            return(False)
+            pattern = False
 
-        list_to_eject = [x.strip() for x in lista[1:].split(',')]
+        return(pattern)
 
-        ejected = False
+    def eject_to(self, blacklist, string, regular_expression, log):
 
-        for _ in list_to_eject:
+        contrary = self.get_contrary(blacklist)
+        blacklist = self.get_real_list(blacklist)
 
-            if (_ == game) or (pattern):
+        pattern = self.get_pattern(string, regular_expression, log)
+        cmp_data = (pattern) or (string in [x.strip() for x in blacklist.split(',') if (convert.convert_bool(x))])
 
-                ejected = True
-                break
+        return(contrary != cmp_data)
 
-        if (ejected == False):
+    def honeypot(self, honeypot_list, client_address, log):
 
-            self.imprint('No esta en la lista %s! ... Tomando medidas!' % (message), WAR)
-            self.error403()
-            
-            return(True)
+        if (self.eject_to(honeypot_list, client_address, regular_expression_for_address, log) == True):
+
+            if (convert.convert_boool(tools) == True):
+
+                thread = threading.Thread(target=defend.defend, args=(tools, self.client_address, LHOST, LPORT, log))
+                thread.start()
+
+            else:
+
+                self.imprint('¡No has configurado una lista de herramientas!', WAR)
 
     def eject(self):
- 
-        address_string = self.address_string()
-        pattern_for_address = re.match(regular_expression_for_address, address_string, re_options)
 
-        user_agent = self.headers['User-Agent']
-        pattern_for_user_agent = re.search(regular_expression_for_userAgent, user_agent, re_options) if not (user_agent == None) and not (regular_expression_for_userAgent == '0') else False
+        if (convert.convert_bool(blacklist) == True) or (convert.convert_bool(regular_expression_for_address)):
 
-        #Honeypot INIT
-        #############################
+            if (self.eject_to(blacklist, self.client_address[0], regular_expression_for_address, self.imprint) == True):
 
-        if not (honeypot_list == '0') or not (honeypot_list == ''):
+                self.imprint('¡No tiene permiso para ingresar a Evie!. Coincidencia: "{}" en la lista negra de direcciones'.format(self.client_address[0]), WAR)
+                self.error403()
 
-            hp_list = [x.strip() for x in honeypot_list.split(';')]
+                request_count_safe['address_BLOCK'] += 1
 
-            for _ in hp_list:
+                return(True)
 
-                try:
+        elif (convert.convert_bool(user_agent_list) == True) or (convert.convert_bool(regular_expression_for_userAgent)):
 
-                    (host, port) = _.split('#')
+            if (self.eject_to(user_agent_list, self.headers['User-Agent'], regular_expression_for_userAgent, self.imprint) == True):
 
-                    if (host == address_string) or (pattern_for_address):
+                self.imprint('¡No tiene permiso para ingresar a Evie!. Coincidencia: "{}" en la lista negra de agentes de usuario'.format(self.headers['User-Agent']), WAR)
+                self.error403()
 
-                        thread = threading.Thread(target=defend.defend, args=(tools, "%s#%s" % (host, port), LHOST, LPORT))
-                        thread.start()
+                request_count_safe['user_agent_BLOCK'] += 1
 
-                except ValueError:
+                return(True)
 
-                    logger.log('Error con el formato: "%s"' % (_), WAR)
+        elif (convert.convert_bool(honeypot_list) == True) or (convert.convert_bool(regular_expression_for_address) == True):
 
-        #Honeypot END
-        ##############################
+            self.honeypot(honeypot_list, self.client_address[0], self.imprint)
 
-        if not (user_agent_list == '0') and not (user_agent_list[0] == '!'):
+        else:
 
-            if not (user_agent_list[0] == '!'):
-
-                if (self.eject_if('user_agent', user_agent_list, address_string, user_agent, (pattern_for_address, pattern_for_user_agent)) == True):
-
-                    return(True)
-
-            elif (user_agent_list[0] == '!'):
-
-                if (self.eject_if_not('user_agent', user_agent_list, address_string, user_agent, (pattern_for_address, pattern_for_user_agent)) == True):
-
-                    return(True)
-
-            else:
-
-                self.imprint('Error en el formato de la lista de \'agentes de usuarios\'', COM)
-
-        if not (blacklist == '0'):
-
-            if not (blacklist[0] == '!'):
-
-                if (self.eject_if('address', blacklist, address_string, user_agent, (pattern_for_address, pattern_for_user_agent)) == True):
-
-                    return(True)
-            
-            elif not (blacklist[0] == '!'):
-
-                if (self.eject_if_not('address', blacklist, address_string, user_agent, (pattern_for_address, pattern_for_user_agent)) == True):
-
-                    return(True)
-
-            else:
-
-                self.imprint('Error con el formato de las \'direcciones\'', COM)
+            self.imprint('¡El sistema de prevención de intrusos no está habilitado!', WAR)
 
     def replace_commands(self, text):
+        
+        try:
+
+            _path = self.path
+
+        except AttributeError:
+
+            _path = '/'
 
         return(
                 freplace.replace(text, [
@@ -757,7 +784,7 @@ class handler(BaseHTTPRequestHandler):
                     ('{server_version}', BaseHTTPRequestHandler.server_version),
                     ('{sys_version}', BaseHTTPRequestHandler.sys_version),
                     ('{webmaster_email}', webmaster_email),
-                    ('{cpath}', self.path),
+                    ('{cpath}', _path),
                     ('{rhost}', self.client_address[0]),
                     ('{rport}', self.client_address[1])]
                     )
@@ -817,6 +844,10 @@ class handler(BaseHTTPRequestHandler):
 
     def handle(self):
 
+        global request_count
+
+        request_count += 1
+
         try:
 
             self.close_connection = True
@@ -845,10 +876,14 @@ class handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
 
+        global request_count_safe
+
+        request_count_safe['GET'] += 1
+
         if (self.eject() == True): return
 
         # Si tratan de hacer un ataque de fuerza bruta para averiguar
-        # las rutas de los directorios/archivos siempre dara un error 404
+        # las rutas de los directorios/archivos siempre dará un error 404
 
         if not (urlparse(self.path).path == '/'):
 
@@ -858,35 +893,49 @@ class handler(BaseHTTPRequestHandler):
 
         else:
 
-            if (self.headers['Authorization'] == None):
+            if (self.headers['Authorization'] == None) or (str(self.headers['Authorization'])[:5] != 'Basic'):
 
                 self.do_AUTHHEAD()
 
             else:
 
                 credentials = "%s:%s" % (false_username, false_passphrase)
+                
+                try:
+                
+                    credentials_cmp = b64decode(self.headers['Authorization'][6:]).decode()
 
-                self.imprint('Credenciales: %s' % (credentials), PER)
+                except:
 
-                if (self.headers['Authorization'] == "Basic %s" % (b64encode(credentials.encode()).decode())):
-
-                    self.found200()
-                    self.imprint('Accedió a el panel de control (Web) de distracción', INF)
-                    self.imprint('Abriendo plantilla de distracción', INF)
-                    with open(TEMPLATE_CREDENTIALS, 'rb') as templates_credentials_obj:
-                        self.wfile.write(templates_credentials_obj.read())
-                    self.imprint('Se abrio la plantilla ...', INF)
+                    self.imprint('¡Error descodificando las credenciales!', WAR)
+                    self.do_AUTHHEAD()
 
                 else:
 
-                    self.imprint('Ingreso las credenciales falsas incorrectas!', WAR)
+                    self.imprint('Credenciales: {} == {}'.format(credentials, credentials_cmp), PER)
 
-                    self.do_AUTHHEAD()
+                    if (self.headers['Authorization'] == "Basic %s" % (b64encode(credentials.encode()).decode())):
+
+                        self.found200()
+                        self.imprint('Accedió a el panel de control (Web) de distracción', INF)
+                        self.imprint('Abriendo plantilla de distracción', INF)
+                        with open(TEMPLATE_CREDENTIALS, 'rb') as templates_credentials_obj:
+                            self.wfile.write(templates_credentials_obj.read())
+                        self.imprint('Se abrio la plantilla ...', INF)
+
+                    else:
+
+                        self.imprint('¡Ingreso incorrectamente las credenciales falsas!', WAR)
+                        # Podría colocar un error403, pero así se distrae un poco más 3:)
+                        self.do_AUTHHEAD()
 
     def do_POST(self):
 
+        global request_count_safe
+
         share = False
-        
+        request_count_safe['POST'] += 1
+
         if (self.eject() == True): return
 
         content_length = self.headers['Content-Length']
@@ -1094,6 +1143,8 @@ class handler(BaseHTTPRequestHandler):
 
     def do_HEAD(self):
 
+        request_count_safe['HEAD'] += 1
+
         if (self.eject() == True): return
 
         if not (urlparse(self.path).path == '/'):
@@ -1106,7 +1157,7 @@ class handler(BaseHTTPRequestHandler):
 
     def do_AUTHHEAD(self):
 
-        if (self.eject() == True): return
+        request_count_safe['AUTH'] += 1
 
         self.send_response(401, 'Unauthorized')
         self.send_header('Content-Type', 'text/html')
@@ -1151,14 +1202,12 @@ else:
 
         logger.log('Ocurrió una Excepción con el certificado/clave. Excepción: "{}"'.format(Except), debug.COM)
 
-        close = True
         sys.exit(1)
 
     except OSError:
 
         logger.log('Error ingresando la frase de contraseña del certificado/clave.', debug.COM)
         
-        close = True
         sys.exit(1)
 
     except (FileNotFoundError, ValueError):
@@ -1185,5 +1234,14 @@ else:
 
     httpd.shutdown()
 
-close = True
+if (get_os_name == 'posix'):
+
+    try:
+
+        subprocess.call(['reset', '-w'])
+
+    except:
+
+        pass
+
 logger.log('Saliendo ...', debug.INF)

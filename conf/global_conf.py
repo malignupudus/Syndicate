@@ -60,7 +60,7 @@ ssl = {
 connector = {
             
                 'timeout'           :   300,
-                'use_proxy'         :   True,
+                'use_proxy'         :   False,
                 'proxy_type'        :   socks.PROXY_TYPE_SOCKS4,
                 'proxy_addr'        :   '127.0.0.1',
                 'proxy_port'        :   9050,

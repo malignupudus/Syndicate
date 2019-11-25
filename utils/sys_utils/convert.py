@@ -2,7 +2,7 @@
 
 import re
 from json import loads as j_loads
-from yaml import load as y_loads
+from yaml import safe_load as y_loads
 
 def convert_str(data):
 
@@ -34,7 +34,7 @@ def convert_bool(data):
 
     data = str(data).strip()
 
-    if (data[:1] == '0') or (data[:2] == '-0') or (data == ''):
+    if (data[:1] == '0') or (data[:2] == '-0') or (data == '') or (data == None):
 
         return(False)
 
@@ -119,21 +119,17 @@ def convert_dict(data):
 
         raise ValueError('Los datos introducidos no son correctos')
 
-    char = re.search(r'^;.;', data)
+    char = re.match(r'^;.;', data)
 
     if (char):
 
-        char = char.group(0)
+        char = data[:3]
 
     else:
 
         raise SyntaxError('¡Falta definir la etiqueta o no es una etiqueta válida!')
 
     for _ in data.split(char)[1:]:
-
-        if (_.count('=') == 0):
-
-            raise SyntaxError('Debe seguir la especificación acordada')
 
         (key, value) = _.split('=', 1)
 

@@ -117,7 +117,7 @@ class control(object):
 
     def __sendData(self, request, recover=False):
 
-        if not (isinstance(request, tuple) == True):
+        if not (isinstance(request, (tuple, list)) == True):
 
             raise TypeError('El tipo de dato de los datos a enviar no son correctos.')
 
@@ -131,7 +131,7 @@ class control(object):
 
         if (request[0].strip() == ''):
 
-            raise TypeError('La clave no puede estar vacia')
+            raise ValueError('La clave no puede estar vacia')
 
         data = {
                 'username'          :   self.__username,
@@ -239,13 +239,13 @@ class control(object):
 
     def addNode(self, node_id, node):
 
-        if not (isinstance(node, list) == True):
+        if not (isinstance(node, (list, tuple)) == True):
 
             raise TypeError('El tipo de dato no es el correspondiente')
 
-        if (len(node) != 2):
+        if (len(node) != 3):
             
-            raise TypeError('La longitud de la lista, no es correcta y tiene que seguir la siguiente sintaxis: (Node, Token)')
+            raise ValueError('La longitud de la lista, no es correcta y tiene que seguir la siguiente sintaxis: (Node, Token)')
 
         return(self.__simplySendData(('addNode', (node_id, node))))
 
@@ -263,11 +263,11 @@ class control(object):
 
             if (len(_) != 3):
 
-                raise TypeError('La longitud de la lista (%s) no es correcta y tiene que seguir la siguiente sintaxis: (Node, Token, Secret Key)' % (_))
+                raise ValueError('La longitud de la lista (%s) no es correcta y tiene que seguir la siguiente sintaxis: (Node, Token, Secret Key)' % (_))
 
         if not (len(node_info) == 11):
 
-            raise TypeError('La longitud del último nodo no tiene una longitud correcta y debe seguir la siguiente Síntaxis: (Node, Username, Passphrase, Uniqkey, Public Key Server, Your Private Key, Recover, Iteration\'s, Security Number, Decrement Number, Security Character\'s)')
+            raise ValueError('La longitud del último nodo no tiene una longitud correcta y debe seguir la siguiente Síntaxis: (Node, Username, Passphrase, Uniqkey, Public Key Server, Your Private Key, Recover, Iteration\'s, Security Number, Decrement Number, Security Character\'s)')
 
         _cipher = lambda data: hibrid.encrypt(data, node_info[4])
 
@@ -463,6 +463,6 @@ class control(object):
 
         if not (isinstance(data, dict)):
 
-            raise TypeError('Los parámetros no son válidos')
+            raise TypeError('Los parámetros no tienen un tipo de dato válido')
 
         return(self.__simplySendData(('addQueue', (command, bot_id, data))))

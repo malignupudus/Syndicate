@@ -20,7 +20,6 @@ import sys
 from os.path import isfile
 from urllib3 import disable_warnings
 from binascii import unhexlify
-from yaml import load
 
 from modules.UI import argprogrammer
 

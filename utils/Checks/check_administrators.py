@@ -4,6 +4,7 @@ from utils.Wrappers import wrap
 from utils.UI import debug
 from utils.sys_utils import pos_convert
 from utils.Extracts.extract_ips import _extract
+from utils.sys_utils import convert
 
 from modules.Ciphers import db_hash
 
@@ -13,6 +14,12 @@ hashing_length = global_conf.hashing_length
 _server_error_message = 'Hubo un error interno analizando el metodo de denegación ...'
 
 def check(username, passphrase, uniqkey, recover, log, address, max_retry, retry_seconds, denied_method, iterations, chars, decrement_number, security_number):
+
+    for _ in [username, passphrase, uniqkey, iterations, chars, decrement_number, security_number]:
+
+        if not (convert.convert_bool(_)):
+
+            return(False)
 
     log.logger('Verificando credenciales del administrador...', debug.INF)
 

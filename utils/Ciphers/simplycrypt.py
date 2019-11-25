@@ -1,6 +1,6 @@
 from modules.Ciphers import aes
 from utils.sys_utils import bytes_convert
-from yaml import dump, load
+from yaml import safe_dump as dump, safe_load as load
 from zlib import compress, decompress
 from base64 import b64encode, b64decode
 
