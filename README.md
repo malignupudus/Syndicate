@@ -18,7 +18,7 @@ En syndicate project trato de implementar diferencias entre usuarios para simpli
 
 ### Seguridad
 
-La seguridad es lo más importante en una red Punto a Punto, se que ningún sistema es seguro pero hago el intento para perfeccionar la técnica.
+La seguridad es lo más importante en una red Punto a Punto, se que ningún sistema es seguro pero hago más que un intento para perfeccionar la técnica. Caracteristicas:
 
 * Cifrado hibrido en las conexiones entre los servidores y los clientes registrados
 ```Python
