@@ -44,9 +44,27 @@ Tengo que explicar algunas cosas, para que no haya perdidas de tiempo:
 
 El redirector es mejor usarlo, cuando deseas crear un "Backup" dentro de las máquinas infectadas *¿Por qué?*, ¿Te imaginas que tu servidor central callerá? y luego cuando lo vuelvas a lenvantar ya es muy tardé, no tienes como recuperar la perdida de datos; hay es cuando entra redirector al rescate.
 
-* **Hash dinámico**: En syndicate se usa un **Hash dinámico**, para hacer todo lo posble para evitar 
+* **Hash dinámico**: En syndicate se usa un **Hash dinámico**, para hacer todo lo posble para evitar un ataque de fuerza bruta o por diccionario, usando *iteraciones*, *Número de seguridad*, *Número de disminución* y *Caracteres de seguridad*; todo esto tiene que ver con el algoritmo utilizado, pero haciendo una aclaratoria:
 
-## 
+  - **Iteraciones**: Las iteraciones son el número de veces por que se repité el proceso
+  - **Número de seguridad**: El número de seguridad se multiplica primero por el mismo y el resultado se usa para delimitar la ofuscación de caracteres de seguridad y luego en la siguiente iteración (**Si es que la hay**) disminuye usando el número de disminución
+  - **Número de disminución**: El número de disminución se encarga de disminuir el número de seguridad por cada segunda iteración
+  - **Caracteres se seguridad**: Los caracteres de seguridad se codifican a base64 y se "parten" y ofuscan usando el número de seguridad y disminución, para luego sumarlos con el resultado verdadero, que quiere decir, el hash.
+  
+  **Nota**: *El hash usa la siguiente función: sha256( sha512( string ).digest() ).hexdigest()*
+  
+  - **Token de Acceso**: Usado para verificar que tenga acceso público al sistema y cifrar los datos, posteriormente se usaría algún servicio antes mencionado.
+  
+  - **Clave secreta**:  La clave secreta cifra algunos datos antes de usar "resend" o un reenvio de paquetes en una red, porque que si llega a hacer interceptada, no se pueda "leer" esos datos, por eso su nombre, ésta sólo se debe compartir con las personas de confianza, igual que pasa con el *token de acceso*.
+
+**Notas**:
+
+* Tú, como administrador del servidor te debes encargar de repartir a personas de confianza el token de acceso, claro sí es qué desean usar los servicios públicos.
+* El token de acceso se tiene que usar mayormente para usar **Compatir un rook** o usar **resend**.
+* En el caso de usar **resend**, debe usar igualmente el token de acceso
+* Prefiero que usted use [sendSOS](sendSOS.py) y se comuniqué con el **Evie** que desee, para que tenga más seguridad en sus datos y sin limitaciones por parte de servidores externos. Aclaró ésto, porque así es la mejor manera de enviar token's de acceso y/o claves secretas.
+* Tengo absoluto cuidado con los números y caracteres de seguridad, pueden volver el proceso más lento, pero eso no es tan malo, porque si un atacante quiere hacer fuerza bruta, tiene que esperar a que el servidor genere el hash y luego verificar si es correcto o no. ¿Una maravilla no? :')
+* Sí quieres saber más acerca del algoritmo, puedes hacerlo [Aquí](modules/Ciphers/db_hash.py)
 
 ## Funcionamiento de la Red
 
@@ -56,9 +74,47 @@ Ahora pasemos a la explicación: Es sencilla la red, hay que saber usarla y cuá
 
 Primero crearemos un **Jacob** (Administrador de los Rook's):
 
+**Pero** antes de hacer éso, quiero aclarar que algunas herramientas necesitan acceso seguro a la base de datos que está encriptada, por lo tanto si usted no introducé los parámetros se le va abrir un pequeño formulario requiriendo los datos. Sí no me cree, mirelo usted o mejor aún **Pruébelo**:
+
 ```bash
 ./addadmin.py -u <Nombre de usuario> -p <Frase de contraseña> -P <Frase de contraseña de la clave privada>
+* Datos para desencriptar la frase de contraseña *
+  ----------------------------------------------
+
+Ingrese la frase de contraseña:
+: **************
+Ingrese los caracteres de seguridad:
+: abcdefghijklmnopqrstuvwxyz1234567890
+Ingrese el número de iteraciones:
+: 43
+Ingrese el número de seguridad:
+: 30
+Ingrese el número de disminución:
+: 18
+Se guardo satisfactoriamente en -> conf/pass
 ```
+
+**Notas**:
+
+* Los que acabo de introducir se genera lento en mi computadora, usted tiene que introducir lo necesario para obtener una mayor seguridad pero que el proceso no se vuelva tan lento; al fin y al cabo usted decide.
+* Sí ejecutan alguna herramienta que requiera la información para desencriptar la base de datos, se guardará en vez de comparar
+* **conf/pass** es guardado con permisos "**444**", por favor verifique que sea así con "ls -l conf/pass" o si no hagalo de forma manual: chmod 444 conf/pass una vez ha sido creada.
+
+¿Ven?, sería tedíoso que tuviera que introducir todo esas cosas, mejor usas nuestra linda terminal :'D:
+
+```bash
+# Primero veamos que regla para guardar los comando en el historial tenemos
+echo $HISTCONTROL
+ignoreboth
+# ¡Bien!, esa es la regla perfecta.
+# Eso nos servirá cuando introduscamos un comando y no se guarde en el historial, ya que la idea es que no se guarde una contraseña o algo sensible.
+# Así que ahora guardemos lo que necesitamos en una variable
+ declare -x params='-db-passphrase <Frase de contraseña de la base de datos> -db-iterations <Número de iteraciones> -db-chars <Caracteres de seguridad> -db-security-number <Número de seguridad>'
+# Cómo pueden notar, usé un espacio antes de escribir el comando, para que no se almacene en el historial.
+# Claro, pueden hacer éso o pueden crear un script y lo cargán usando "source" o ".", pero se los dejo para la casa...
+```
+
+## Complementos
 
 ## Plataformas
 
@@ -123,6 +179,8 @@ cd Syndicate
 ```
 
 ## Limitaciones
+
+## Capturas de pantalla:
 
 
 
