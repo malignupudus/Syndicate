@@ -23,7 +23,9 @@ bot_id = None
 
 def printI(string):
 
-    print(string)
+    if (verbose == True):
+
+        print(string)
 
     return(string)
 
@@ -36,11 +38,11 @@ def loop(rook_instance, sleep_check):
 
         bucle_count += 1
 
-        print('Conectando...')
+        printI('Conectando...')
 
         cmd = rook_instance.getQueue()
 
-        print('Abriendo bucle evaluativo (%d) ...' % (bucle_count))
+        printI('Abriendo bucle evaluativo (%d) ...' % (bucle_count))
 
         for url, data in cmd.items():
 
@@ -48,7 +50,7 @@ def loop(rook_instance, sleep_check):
 
                 data = data[1]
 
-                print('Recibido, datos por parte de {}'.format(url))
+                printI('Recibido, datos por parte de {}'.format(url))
 
                 for _ in data:
 
@@ -69,18 +71,18 @@ def loop(rook_instance, sleep_check):
 
                                     if (ismethod(getattr(rook_instance, key))):
 
-                                        print('SUCCESS: Ejecutando: "{}"'.format(key))
+                                        printI('SUCCESS: Ejecutando: "{}"'.format(key))
 
                                         thread = threading.Thread(target=getattr(rook_instance, key), kwargs=value)
                                         thread.start()
 
                                     else:
 
-                                        print('WARNING: {} no es una función'.format(key))
+                                        printI('WARNING: {} no es una función'.format(key))
 
                                 except Exception as Except:
 
-                                    print('ERROR: Ocurrio una excepción: {}'.format(Except))
+                                    printI('ERROR: Ocurrio una excepción: {}'.format(Except))
 
                             else:
 
@@ -96,13 +98,13 @@ def loop(rook_instance, sleep_check):
 
             else:
 
-                print('WARNING: Aún no hay datos...')
+                printI('WARNING: Aún no hay datos...')
 
-        print('Fin del bucle evaluativo.')
+        printI('Fin del bucle evaluativo.')
 
         sleep(sleep_check)
 
-        print('WARNING: Intervalo terminado.')
+        printI('WARNING: Intervalo terminado.')
 
 def set_keys(pubKey_server, privKey_client):
 
@@ -135,10 +137,8 @@ def init(*args, **kwargs):
         rook_obj.setServerCredentials(publicKey_server)
     
     except:
-        
-        if (verbose == True):
-            
-            print('Error importando la clave pública de Evie')
+
+        printI('Error importando la clave pública de Evie')
         
         return(False)
     
@@ -147,10 +147,8 @@ def init(*args, **kwargs):
         rook_obj.setCredentials(password, bot_id, privateKey_client)
     
     except:
-        
-        if (verbose == True):
             
-            print('Error importando la clave privada del rook')
+        printI('Error importando la clave privada del rook')
         
         return(False)
 
@@ -160,9 +158,7 @@ def init(*args, **kwargs):
     
     except Exception as Except:
 
-        if (verbose == True):
-
-            print(str(Except))
+        printI(str(Except))
 
         return(False)
 
@@ -212,6 +208,7 @@ if __name__ == '__main__':
     parser.add(['-db-path'], 'db_path', 'El nombre de la base de datos', group=group_optionals)
     parser.add(['-sleep'], 'sleep', 'El tiempo de espera para el envío de cada respuesta entre los diferentes servidores secundaros. Pre-determinado: "{}"'.format(default_sleep), type=int, default=default_sleep, group=group_optionals)
     parser.add(['-sleep-check'], 'sleep_check', 'El intervalo del bucle, para verificar comandos en cola. Pre-determinado: "{}"'.format(default_sleep_check), group=group_optionals, type=int, default=default_sleep_check)
+    parser.add(['-no-verbose'], 'no_verbose', type=bool, action=True, group=group_optionals)
 
     args = parser.parse_args()
 
@@ -229,6 +226,7 @@ if __name__ == '__main__':
     param_db_path = args.db_path
     param_sleep = args.sleep
     param_sleep_check = args.sleep_check
+    param_no_verbose = args.no_verbose
     
     params = {
             
@@ -254,6 +252,10 @@ if __name__ == '__main__':
 
         params['sleep'] = param_sleep
 
+    if (param_no_verbose == True):
+
+        verbose = False
+
     # Sí existen las claves, se abrira el archivo y se usaran en lugar de ser un string
 
     if (os.path.isfile(param_pubKey) == True):
@@ -275,11 +277,11 @@ if __name__ == '__main__':
 
     if (rook_hook == False):
         
-        print('Error en la operación de inicialización ...')
+        printI('Error en la operación de inicialización ...')
     
     else:
 
-        print('Iniciando bucle para esperar conexiones ...')
+        printI('Iniciando bucle para esperar conexiones ...')
 
         try:
             
@@ -291,8 +293,8 @@ if __name__ == '__main__':
         
         except Exception as Except:
 
-            print('Ocurrio un error: {}'.format(Except))
+            printI('Ocurrio un error: {}'.format(Except))
 
         finally:
 
-            print('Terminado.')
+            printI('Terminado.')
