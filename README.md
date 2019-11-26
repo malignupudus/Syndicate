@@ -282,11 +282,13 @@ cd Syndicate
 
 ## Capturas de pantalla:
 
+### Inicio de sesión para Jacob
 
+![](shots/login.Syndicate.png)
 
 ## Creador
 
-~ DtxdF (DtxdF@protonmail.com)
+~ *Jesús D. Colmenares* - DtxdF (**DtxdF@protonmail.com**)
 
 ## Agradecimientos
 
