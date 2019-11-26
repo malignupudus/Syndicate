@@ -57,9 +57,9 @@ El redirector es mejor usarlo, cuando deseas crear un "Backup" dentro de las má
   
   **Nota**: *El hash usa la siguiente función: sha256( sha512( string ).digest() ).hexdigest()*
   
-  - **Token de Acceso**: Usado para verificar que tenga acceso público al sistema y cifrar los datos, posteriormente se usaría algún servicio antes mencionado.
+* **Token de Acceso**: Usado para verificar que tenga acceso público al sistema y cifrar los datos, posteriormente se usaría algún servicio antes mencionado.
   
-  - **Clave secreta**:  La clave secreta cifra algunos datos antes de usar "resend" o un reenvio de paquetes en una red, porque que si llega a hacer interceptada, no se pueda "leer" esos datos, por eso su nombre, ésta sólo se debe compartir con las personas de confianza, igual que pasa con el *token de acceso*.
+* **Clave secreta**:  La clave secreta cifra algunos datos antes de usar "resend" o un reenvio de paquetes en una red, porque que si llega a hacer interceptada, no se pueda "leer" esos datos, por eso su nombre, ésta sólo se debe compartir con las personas de confianza, igual que pasa con el *token de acceso*.
 
 **Notas**:
 
