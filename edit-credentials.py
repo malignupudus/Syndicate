@@ -137,136 +137,134 @@ if (delete == True):
             print('No está permitido la eliminación de "%s"' % (_))
             sys.exit(1)
 
-else:
+try:
 
-    try:
-    
-        if (isinstance(wrapper_instance, list)) and (delete == True):
+    if (isinstance(wrapper_instance, list)) and (delete == True):
 
-            limit = 0
-            count_value = 0
+        limit = 0
+        count_value = 0
 
-            while not (limit >= limits):
+        while not (limit >= limits):
 
-                result = wrap.write(identifier, key, value, target=wrap.TARGET_DELETE, separate=True) if (agent == 'bot') else wrap.write(identifier, key, value, agent=wrap.USE_ADMIN, target=wrap.TARGET_DELETE, separate=True)
+            result = wrap.write(identifier, key, value, target=wrap.TARGET_DELETE, separate=True) if (agent == 'bot') else wrap.write(identifier, key, value, agent=wrap.USE_ADMIN, target=wrap.TARGET_DELETE, separate=True)
 
-                if not (result == False):
+            if not (result == False):
 
-                    count_value += 1
-
-                else:
-
-                    print('No se pudo eliminar: %s' % (value))
-
-                limit += 1
-
-            if not (count_value == 0):
-
-                print('Eliminado: %s (%d)' % (value, count_value))
+                count_value += 1
 
             else:
 
-                print('No hubo valores eliminados ...')
+                print('No se pudo eliminar: %s' % (value))
 
-        elif (delete == True) and not (isinstance(wrapper_instance, list)):
+            limit += 1
 
-            result = wrap.write(identifier, key, None, separate=True) if (agent == 'bot') else wrap.write(identifier, key, None, agent=wrap.USE_ADMIN, separate=True)
-            
-            if (result == False):
+        if not (count_value == 0):
 
-                print('No se pudo eliminar: "%s"' % (key))
-
-            else:
-
-                print('Eliminado ...')
+            print('Eliminado: %s (%d)' % (value, count_value))
 
         else:
 
-            if (key == 'passphrase'):
+            print('No hubo valores eliminados ...')
 
-                value = db_hash.hash(value, iterations, security_chars, security_number, decrement_number)
-                _passphrase_is = True
+    elif (delete == True) and not (isinstance(wrapper_instance, list)):
 
-            elif (key == 'admins') and (agent == 'bot'):
+        result = wrap.write(identifier, key, None, separate=True) if (agent == 'bot') else wrap.write(identifier, key, None, agent=wrap.USE_ADMIN, separate=True)
+        
+        if (result == False):
 
-                if not (value in show_user_admins.show()):
+            print('No se pudo eliminar: "%s"' % (key))
 
-                    print('El administrador "%s" no existe ...' % (value))
-                    sys.exit(1)
+        else:
 
-                else:
+            print('Eliminado ...')
 
-                    if (value in wrap.read(identifier, 'admins', separate=True)):
+    else:
 
-                        print('%s, ya está acargo de %s' % (value, identifier))
-                        sys.exit(1)
+        if (key == 'passphrase'):
 
-            elif (key == 'privileges') and (agent == 'admin'):
+            value = db_hash.hash(value, iterations, security_chars, security_number, decrement_number)
+            _passphrase_is = True
 
-                privileges_in_admin = wrap.read(identifier, key, agent=wrap.USE_ADMIN, separate=True)
+        elif (key == 'admins') and (agent == 'bot'):
 
-                if ('ALL' in privileges_in_admin):
+            if not (value in show_user_admins.show()):
 
-                    print('No puedes agregar más privilegios, ya tienes todos.')
-                    sys.exit(1)
-
-                if (value.lower() == 'all'):
-
-                    if (len(privileges_in_admin) > 0):
-
-                        print('No puedes agregar todos los privilegios cuando se tienen unos especificos. Primero debes eliminarlos para continuar.')
-                        sys.exit(1)
-
-                if not (value in global_conf.privileges):
-
-                    print('No existe el privilegio a otorgar.')
-                    sys.exit(1)
-
-                if (value in privileges_in_admin):
-
-                    print('El administrador ya tiene otorgado ese privilegio.')
-                    sys.exit(1)
-            
-            result = wrap.write(identifier, key, value, separate=True) if (agent == 'bot') else wrap.write(identifier, key, value, agent=wrap.USE_ADMIN, separate=True)
-
-            if (str(result) == 'False'):
-
-                print('No se pudo agregar: "%s => %s"' % (key, value))
+                print('El administrador "%s" no existe ...' % (value))
+                sys.exit(1)
 
             else:
 
-                print('Agregado: "%s" a "%s"' % (value, key))
+                if (value in wrap.read(identifier, 'admins', separate=True)):
 
-                if (_passphrase_is == True):
+                    print('%s, ya está acargo de %s' % (value, identifier))
+                    sys.exit(1)
 
-                    print('Agregando más valores, debido a la frase de contraseña editada ...')
+        elif (key == 'privileges') and (agent == 'admin'):
 
-                    for _key, _value in {'iterations':iterations, 'securityNumber':security_number, 'security_chars':security_chars, 'decrementNumber':decrement_number}.items():
+            privileges_in_admin = wrap.read(identifier, key, agent=wrap.USE_ADMIN, separate=True)
 
-                        result = wrap.write(identifier, _key, _value, separate=True) if (agent == 'bot') else wrap.write(identifier, _key, _value, agent=wrap.USE_ADMIN, separate=True)
+            if ('ALL' in privileges_in_admin):
 
-                        if (result == False):
+                print('No puedes agregar más privilegios, ya tienes todos.')
+                sys.exit(1)
 
-                            print('Error editando la clave: "%s" con el valor: "%s"' % (_key, _value))
+            if (value.lower() == 'all'):
 
-                            sys.exit(1)
+                if (len(privileges_in_admin) > 0):
 
-                        else:
+                    print('No puedes agregar todos los privilegios cuando se tienen unos especificos. Primero debes eliminarlos para continuar.')
+                    sys.exit(1)
 
-                            print('Se configuro correctamente: "%s" con el valor: "%s"' % (_key, _value))
+            if not (value in global_conf.privileges):
 
-                    print('Configuración exitosa.')
+                print('No existe el privilegio a otorgar.')
+                sys.exit(1)
 
-    except KeyError:
+            if (value in privileges_in_admin):
 
-        #DEBUG
-        #raise
+                print('El administrador ya tiene otorgado ese privilegio.')
+                sys.exit(1)
+        
+        result = wrap.write(identifier, key, value, separate=True) if (agent == 'bot') else wrap.write(identifier, key, value, agent=wrap.USE_ADMIN, separate=True)
 
-        print('No se encontro la clave: "%s"' % (key))
+        if (str(result) == 'False'):
 
-    except Exception as Except:
+            print('No se pudo agregar: "%s => %s"' % (key, value))
 
-        #DEBUG
-        #raise
+        else:
 
-        print('Excepción desconocida: "%s"' % (Except))
+            print('Agregado: "%s" a "%s"' % (value, key))
+
+            if (_passphrase_is == True):
+
+                print('Agregando más valores, debido a la frase de contraseña editada ...')
+
+                for _key, _value in {'iterations':iterations, 'securityNumber':security_number, 'security_chars':security_chars, 'decrementNumber':decrement_number}.items():
+
+                    result = wrap.write(identifier, _key, _value, separate=True) if (agent == 'bot') else wrap.write(identifier, _key, _value, agent=wrap.USE_ADMIN, separate=True)
+
+                    if (result == False):
+
+                        print('Error editando la clave: "%s" con el valor: "%s"' % (_key, _value))
+
+                        sys.exit(1)
+
+                    else:
+
+                        print('Se configuro correctamente: "%s" con el valor: "%s"' % (_key, _value))
+
+                print('Configuración exitosa.')
+
+except KeyError:
+
+    #DEBUG
+    #raise
+
+    print('No se encontro la clave: "%s"' % (key))
+
+except Exception as Except:
+
+    #DEBUG
+    #raise
+
+    print('Excepción desconocida: "%s"' % (Except))

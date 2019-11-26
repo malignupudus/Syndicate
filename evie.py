@@ -855,13 +855,9 @@ class handler(BaseHTTPRequestHandler):
 
             self.imprint('Error de tuberia. El cliente puede estár conectandose y desconectandose para lograr que el servidor obtenga una anomalía', COM)
 
-            self.do_AUTHHEAD()
-
         except ConnectionResetError as Except:
 
             self.imprint('Error por parte del cliente u ocurrio un error por no seguir el protocolo especifico. Excepción: "%s"' % (Except), WAR)
-
-            self.do_AUTHHEAD()
 
         except Exception as Except:
 
