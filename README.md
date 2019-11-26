@@ -122,7 +122,7 @@ Ahora simplemente puede ejecutar:
 
 Al ejecutar se dará cuenta que le pide una confirmación:
 
-```bash
+```
 -*- ¿Es correcta la siguiente información? -*-
 
 Nombre de usuario       ::   <Nombre de usuario>
@@ -138,15 +138,79 @@ Tamaño de la clave      ::   2048
 ¿Root?                  ::   0
 ->
 ```
-Debe introducir "**1**" para continuar y "**0**" para salir, aunque "***CTRL-C***", también ayuda.
+Debe introducir "**1**" para continuar y "**0**" para salir, aunque "**CTRL-C**", también ayuda.
 
 **Notas**:
 
 * Sí no quiere que le confirme los datos, usé "-no-confirm".
 * Cómo puede observar, hay caracteres rellenados automáticamente, puede editarlos introduciendo los parámetros correspondientes cómo: "**-i, --iterations**" para las *Iteraciones* "**-sn, --security-number**" para el "*número de seguridad*", "**-c, --security-chars**" para los *Caracteres de seguridad* y "**-d, --decrement-number**" para el *Número de disminución* o puede editarlos en el [archivo de configuración global](conf/global_conf.py).
-* Ser **root** no es lo mismo en **Linux** que en **syndicate**, **no se confunda**; significa que todos los **rook's** ahora 
+* Ser **root** no es lo mismo en **Linux** que en **syndicate**, **no se confunda**; significa que todos los **rook's** ahora pertenecerán a todos los **jacob's**, aunque esto es relativo, ya que si el **maximo de bot's** es mayor a "**0**" no se incluirá si llegó a su maximo.
 
-**Nota**: Puede usar el parámetro "**-h, --help**" para ver la ayuda.
+Esperamos unos instantes y para confirmar que todo salío perfecto, ejecuté:
+
+```bash
+./addadmin.py -show $params
+```
+Ese comando le mostrará todos los **Jacob's** registrados.
+
+Ahora pasemos a algo mejor, creemos nuestro **rook** para un **jacob**:
+
+```bash
+./addbot.py -u <Nombre del rook> -p <Frase de contraseña> -P <Frase de contraseña de la clave privada> -a <Administrador> $params
+```
+
+Vemos un parámetro nuevo, "**-a**" o también podría llamarse "**--admin**". Si no razonaste correctamente, te digo que es para agregar a los **Jacob's**.
+
+**Notas**:
+
+* Puedes crear tantos **rook's** para **jacob's** dependiendo del **maximo de bot's**
+* El parámetro "**-a, --admin**" es de tipo **lista**, lo que quiere decir que para agregar a más de uno, tienes que usar una "**,**" (**coma**) y sí el nombre tiene espacios usa comíllas cómo apoyo.
+
+Eso no es todo, necesitamos configurar [Evie](evie.py) usando [auto-config.sh](auto-config.sh) mas los parámetros ya utilizados en anteriores herramientas.
+
+```bash
+./auto-config.sh $params
+```
+Usted vería cada **Clave**, **Sub-Clave** y **Valor**; los segundos que se muestran cada uno, varian dependiendo de sus recursos, esto se debe a que se está encriptado cada dato.
+
+A pesar de que se muestre la configuración al finalizar, tal vez usted quiera apreciarla para un después. Lo puede hacer así:
+
+```bash
+./evie-config.py -print-configuration $params
+```
+
+**Notas**:
+
+* Aunque [auto-config.sh](auto-config.sh) es un script, la herramienta que tiene el poder de hacer esta mágia es [evie-config.py](evie-config.py), pero es mejor automatizar todo, para ahorrar tiempo.
+* Puede obtener más información desde el mismo [Archivo de Configuración](auto-config.sh).
+
+Ahora si que viene lo bueno, ejecutamos [evie.py](evie.py) para iniciar el servidor:
+
+```bash
+./evie.py -P <Frase de contraseña de la clave privada> $params
+```
+
+La salida sería algo así:
+
+```
+(00:33:04 ~ 26/11/2019)[Evie:ADVERTENCIA]:---:!: El par de claves aún no son son generados ... generando ...
+(00:33:04 ~ 26/11/2019)[Evie:PERSONAL]:------:+: Tamaño a generar: "2048"
+(00:33:11 ~ 26/11/2019)[Evie:INFORME]:-------:*: El par de claves fueron generadas ...
+(00:33:11 ~ 26/11/2019)[Evie:INFORME]:-------:*: Desencriptando ...
+(00:33:12 ~ 26/11/2019)[Evie:INFORME]:-------:*: ¡Clave desencriptada!
+(00:33:12 ~ 26/11/2019)[Evie:INFORME]:-------:*: Generando clave secreta ...
+(00:33:12 ~ 26/11/2019)[Evie:PERSONAL]:------:+: Clave secreta generada -> b22f 34b4 1c48 b8dd dad3 dcfc d0b6 986d 081f 80f3 959d 3de0 1075 6ea1 dfc2 ad45
+(00:33:12 ~ 26/11/2019)[Evie:INFORME]:-------:*: Generando un nuevo token de acceso ...
+(00:33:12 ~ 26/11/2019)[Evie:PERSONAL]:------:+: Token de acceso generado -> 8502382584368ce06c336c793750815f400697daaff7dc8244e849b75135d638
+(00:33:12 ~ 26/11/2019)[Evie:ADVERTENCIA]:---:!: No se encontraron los requerimientos necesarios para usar el protocolo de forma (más) segura. Usando HTTP ...
+(00:33:12 ~ 26/11/2019)[Evie:PERSONAL]:------:+: Escuchando en :: http://0.0.0.0:8081/hmKReYEJrMWB8l48yvsENaLlMT1ijqIiU2nU6RGiKnanCZEkimT0lh2xW-xS1xYP6rJX1uWmxbp2bOeSVCCfJQ
+```
+
+No explicaré todo, porque hay cosas que son sencillas y otras ya las explique, pero sí que hay algo nuevo. *¿Qué deminios es esa ruta?*; la ruta se genera de forma aleatoria y segura, puede usar los archivos de configuración para evitarlo, pero recomiendo que lo deje así.
+
+Lo negativo de usar una ruta aleatoria es que si el servidor se "apaga" y se inicia nuevamente, tendrá otra ruta, lo que quiere decir que los **Jacob's** tendran que saberlo; es recomendable sólo cuando hay pocos **Jacob's**.
+
+**Nota**: Puede usar el parámetro "**-h, --help**" para ver la ayuda en la mayoría de herramientas.
 
 ## Complementos
 
