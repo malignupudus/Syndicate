@@ -72,7 +72,7 @@ El redirector es mejor usarlo, cuando deseas crear un "Backup" dentro de las má
 
 ## Funcionamiento de la Red
 
-Algunas veces es mejor dejar una simulación en vez de palabras, por lo tanto [Aquí](https://onodo.org/visualizations/98665), podrá encontrar el cómo sería la red con todas las caracteristicas.
+Algunas veces es mejor dejar una simulación en vez de palabras, por lo tanto [Aquí](https://onodo.org/visualizations/98665), podrá encontrar el cómo sería la red con todas las caracteristicas y [Aquí](https://onodo.org/visualizations/98748/) el cómo sería cuando **Jacob** envía datos a través de varios nodos en diferentes países.
 
 Ahora pasemos a la explicación: Es sencilla la red, hay que saber usarla y cuándo, pero para poder entenderla hay que crear desde un principio lo que necesitamos e ir aumentando.
 
@@ -453,3 +453,7 @@ Aquí les mostrare un listado de limitaciones, pero además de limitaciones, tam
 
 ## Agradecimientos
 
+* [Kirari-Senpai](https://github.com/Kirari-Senpai): Gracias a tí, si estás leyendo ésto. Tú me ayudaste mucho con los complementos antes de que me surgiera la idea, es admirable que alguien dedique parte de su tiempo a escribir código a alguien que apenas sabe su nombre, pero mucho más a alguien que seguira aportando a este proyecto. Muchas gracias Kirari.
+* [n1nj4sec](https://github.com/n1nj4sec): Gracias por aportar a la comunidad con su proyecto [pupy-rat](https://github.com/n1nj4sec/pupy), gracias a él, muchos complementos de **Syndicate** existen.
+
+*Sí hay alguien que me falta, comunicame inmediantamente*
