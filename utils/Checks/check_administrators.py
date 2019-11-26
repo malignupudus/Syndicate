@@ -15,12 +15,6 @@ _server_error_message = 'Hubo un error interno analizando el metodo de denegaci√
 
 def check(username, passphrase, uniqkey, recover, log, address, max_retry, retry_seconds, denied_method, iterations, chars, decrement_number, security_number):
 
-    for _ in [username, passphrase, uniqkey, iterations, chars, decrement_number, security_number]:
-
-        if not (convert.convert_bool(_)):
-
-            return(False)
-
     log.logger('Verificando credenciales del administrador...', debug.INF)
 
     chars = str(chars)

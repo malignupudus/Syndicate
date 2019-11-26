@@ -18,12 +18,6 @@ _server_error_message = 'Hubo un error interno analizando el metodo de denegaciÃ
 
 def check(passphrase, bot_id, log, address, max_retry, retry_seconds, denied_method, rdns, iterations, chars, decrement_number, security_number):
 
-    for _ in [passphrase, bot_id, iterations, chars, decrement_number, security_number]:
-
-        if not (convert.convert_bool(_)):
-
-            return(False)
-
     passphrase = str(passphrase)
     bot_id = str(bot_id)
     chars = str(chars)
