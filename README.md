@@ -218,12 +218,13 @@ Lo negativo de usar una ruta aleatoria es que si el servidor se "apaga" y se ini
 
 * Lamentablemente sólo la probé en Kali linux, pero puede experimentar en otras plataformas.
 * Recomiendo que si usted va a probar Syndicate en Windows, use Cygwin o WSL, aunque no le garantizó nada.
+* En Android tecnicamente debería funcionar con Userland, aunque tmux no es mala elección.
 
 ## Requerimientos
 
 Puede optar por una fácil instalación con PIP, pero hay algunos inconvenientes que dependen de usted.
 
-* En primer lugar, lo que si es necesario ejecutar es [requirements/requiremnts.txt](https://github.com/DtxdF/Syndicate/tree/master/requirements):
+* En primer lugar, lo que si es necesario ejecutar es [requirements/requiremnts.txt](requirements/requirements.txt):
 
 python3 -m pip install -r requirements/requirements.txt
 
@@ -269,8 +270,6 @@ sudo pip install PyAudio==0.2.11
 
 Usted se estará preguntado: *¿Windows?, ya mencionaste que sólo funciona en **Linux***, Claro, estos requerimientos son para los complementos dependiendo del SO a atacar.
 
-## Creando mi propio payload
-
 ## Instalación
 
 ```
@@ -280,11 +279,24 @@ cd Syndicate
 
 ## Limitaciones
 
-## Capturas de pantalla:
+## Capturas de pantalla
 
 ### Inicio de sesión para Jacob
 
 ![](shots/login.Syndicate.png)
+![](shots/TUI.Syndicate.png)
+
+### Compartiendo un Rook
+
+![](shots/Compartiendo_un_rook.Syndicate.png)
+
+### Comunicación de un Rook con varios servidores
+
+![](shots/Rook_ejecutando_varias_operaciones_en_varios_servidores.Syndicate.png)
+
+### Nodos
+
+![](shots/nodos.Syndicate.png)
 
 ## Creador
 
