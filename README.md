@@ -8,7 +8,7 @@ Tratare de englobar todas las caracteristicas posibles de Syndicate, espero no m
 * Cifrado hibrido en las conexiones. Usando AES256 y RSA a nuestro favor podremos cifrar nuestras comunicaciones oficiales entre Evie's, Jacob's y Rook's.
 * Cifrado simétrico en las bases de datos, tanto del servidor (**Evie**), como la de los **rook's**. Aunque en los accesos públicos también se usa el mismo esquema.
 * Red punto a punto. La red de los Rook's, no es igual a la de los Evie's, aunque puede haber comunicación entre ellas.
-* Multi-usuario. El administrador del servidor se encargá de crear tanto usuarios Jacob's cómo Evie's.
+* Multi-usuario. El administrador del servidor se encargá de crear tanto usuarios Jacob's cómo Rook's con sus respectivos privilegios
 * Compartir Rook's entre Evie's
 * Comunicación por servidores o lo que quiere decir, que creando una red entre Evie's puedes hacer pasar cada paquete a una dirección o podría decirse nodos intermedios hasta llegar a un punto final o nodo final. La red está diseñada para que no se pueda saber que dirección envío qué y dónde, exceptuando algunas cosas, pero que ya explicaré después y además se tiene que configurar toda la red manualmente; Eso brinda más seguridad.
 * Uso de proxy's para mayor privacidad.
@@ -74,7 +74,7 @@ Ahora pasemos a la explicación: Es sencilla la red, hay que saber usarla y cuá
 
 Primero crearemos un **Jacob** (Administrador de los Rook's):
 
-**Pero** antes de hacer éso, quiero aclarar que algunas herramientas necesitan acceso seguro a la base de datos que está encriptada, por lo tanto si usted no introducé los parámetros se le va abrir un pequeño formulario requiriendo los datos. Sí no me cree, mirelo usted o mejor aún **Pruébelo**:
+**Pero** antes de hacer éso, quiero aclarar que algunas herramientas necesitan acceso seguro a la base de datos que está encriptada, por lo tanto si usted no introducé los parámetros se le va abrir un pequeño formulario requiriendo los datos. Sí no me cree, mirelo usted o mejor aún [Pruebélo](modules/Ciphers/db_hash.py):
 
 ```bash
 ./addadmin.py -u <Nombre de usuario> -p <Frase de contraseña> -P <Frase de contraseña de la clave privada>
@@ -100,7 +100,7 @@ Se guardo satisfactoriamente en -> conf/pass
 * Sí ejecutan alguna herramienta que requiera la información para desencriptar la base de datos, se guardará en vez de comparar
 * **conf/pass** es guardado con permisos "**444**", por favor verifique que sea así con "ls -l conf/pass" o si no hagalo de forma manual: chmod 444 conf/pass una vez ha sido creada.
 
-¿Ven?, sería tedíoso que tuviera que introducir todo esas cosas, mejor usas nuestra linda terminal :'D:
+¿Ven?, sería tedíoso que tuviera que introducir todo esas cosas, mejor usamos nuestra linda terminal :'D:
 
 ```bash
 # Primero veamos que regla para guardar los comando en el historial tenemos
@@ -113,6 +113,40 @@ ignoreboth
 # Cómo pueden notar, usé un espacio antes de escribir el comando, para que no se almacene en el historial.
 # Claro, pueden hacer éso o pueden crear un script y lo cargán usando "source" o ".", pero se los dejo para la casa...
 ```
+
+Ahora simplemente puede ejecutar:
+
+```bash
+./addadmin.py -u <Nombre de usuario> -p <Frase de contraseña> -P <Frase de contraseña de la clave privada> $params
+```
+
+Al ejecutar se dará cuenta que le pide una confirmación:
+
+```bash
+-*- ¿Es correcta la siguiente información? -*-
+
+Nombre de usuario       ::   <Nombre de usuario>
+Frase de contraseña     ::   <Frase de contraseña>
+Contraseña RSA          ::   <Frase de contraseña de la clave privada>
+Iteraciones             ::   43
+Número de seguridad     ::   30
+Número de disminución   ::   18
+Caracteres de seguridad ::   abcdefghijklmnopqrstuvwxyz1234567890
+Privilegios             ::   ALL
+Max. de bot's           ::   0 (infinito)
+Tamaño de la clave      ::   2048
+¿Root?                  ::   0
+->
+```
+Debe introducir "**1**" para continuar y "**0**" para salir, aunque "***CTRL-C***", también ayuda.
+
+**Notas**:
+
+* Sí no quiere que le confirme los datos, usé "-no-confirm".
+* Cómo puede observar, hay caracteres rellenados automáticamente, puede editarlos introduciendo los parámetros correspondientes cómo: "**-i, --iterations**" para las *Iteraciones* "**-sn, --security-number**" para el "*número de seguridad*", "**-c, --security-chars**" para los *Caracteres de seguridad* y "**-d, --decrement-number**" para el *Número de disminución* o puede editarlos en el [archivo de configuración global](conf/global_conf.py).
+* Ser **root** no es lo mismo en **Linux** que en **syndicate**, **no se confunda**; significa que todos los **rook's** ahora 
+
+**Nota**: Puede usar el parámetro "**-h, --help**" para ver la ayuda.
 
 ## Complementos
 
@@ -153,21 +187,23 @@ pygame==1.9.6
 mss==4.0.3
 ```
 
-Un último requerimiento más para los complementos predeterminados sería "PyAudio", pero esto requiere un poco más de tu colaboración:
+Un último requerimiento para los complementos predeterminados sería "PyAudio", pero esto requiere un poco más de su colaboración:
 
 En el caso de **Windows**:
 
-Seleccione la versión correspondiente: [PyAudio](https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio)
+Seleccioné la versión correspondiente: [PyAudio](https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio)
 
 En mi caso es: PyAudio‑0.2.11‑cp37‑cp37m‑win32.whl
 
 Mientras que en **Linux**:
 
+```bash
 sudo apt-get install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0
 sudo apt-get install ffmpeg
 sudo pip install PyAudio==0.2.11
+```
 
-Usted se estará preguntado: *¿Windows?, ya mencionaste que sólo funciona en **Linux***, Claro, esto solo requerimientos son para los complementos dependiendo del SO a atacar.
+Usted se estará preguntado: *¿Windows?, ya mencionaste que sólo funciona en **Linux***, Claro, estos requerimientos son para los complementos dependiendo del SO a atacar.
 
 ## Creando mi propio payload
 
