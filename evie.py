@@ -1,12 +1,6 @@
 #!/usr/bin/env python3
 
 import sys
-
-if (sys.version_info.major != 3):
-
-    print('\033[1;37m¡Debes usar la versión \033[4;33m3\033[37;0;1m de \033[33;4mPython\033[37;0;1m para poder ejecutarme!\033[0m')
-    sys.exit(1)
-
 import threading
 import re
 import ssl
@@ -65,6 +59,7 @@ from utils.Shows import show_user_rooks
 from utils.Checks import is_complement
 from utils.sys_utils import convert
 from utils.sys_utils import freplace
+from utils.sys_utils import reset_term
 
 # Defend's
 
@@ -133,7 +128,7 @@ for _ in list_complements:
         except Exception as Except:
 
             print('Exception in file "{}": {}'.format(complement_file, Except))
-            sys.exit(1)
+            reset_term.reset(1)
 
         else:
 
@@ -148,7 +143,7 @@ for _ in list_complements:
                     except Exception as Except:
 
                         print('RuntimeError in file "{}": {}'.format())
-                        sys.exit(1)
+                        reset_term.reset(1)
 
 # Log codes
 
@@ -190,14 +185,14 @@ if (show_complements == True):
 
                 print('\033[1;32m{}\033[0m \033[37m~\033[0m \033[1;37m{}\033[0m'.format(i, _))
 
-    sys.exit(0)
+    reset_term.reset()
 
 else:
 
     if (rsa_passphrase == None):
 
         print('No has definido la frase de contraseña de la clave privada ...')
-        sys.exit(1)
+        reset_term.reset(1)
 
     for _ in list_complements:
 
@@ -208,19 +203,19 @@ else:
             if not (is_complement.check(_)) and not (re.match(r'_{2,}.+_{2,}', _)):
 
                 print('{} no es un complemento válido'.format(_))
-                sys.exit(1)
+                reset_term.reset(1)
 
 try:
 
     if (show_user_admins.show() == []) or (show_user_rooks == []):
 
         print('Necesitas por lo menos un ROOK y un ADMINISTRADOR, para poder continuar ...')
-        sys.exit(1)
+        reset_term.reset(1)
 
 except wrap.incorrect_passphrase:
 
     print('La frase de contraseña del almacén es incorrecta!')
-    sys.exit(1)
+    reset_term.reset(1)
 
 def generate_keys(size):
 
@@ -1202,13 +1197,13 @@ else:
 
         logger.log('Ocurrió una Excepción con el certificado/clave. Excepción: "{}"'.format(Except), debug.COM)
 
-        sys.exit(1)
+        reset_term.reset(1)
 
     except OSError:
 
         logger.log('Error ingresando la frase de contraseña del certificado/clave.', debug.COM)
         
-        sys.exit(1)
+        reset_term.reset(1)
 
     except (FileNotFoundError, ValueError):
 
@@ -1236,12 +1231,6 @@ else:
 
 if (get_os_name == 'posix'):
 
-    try:
-
-        subprocess.call(['reset', '-w'])
-
-    except:
-
-        pass
+    reset_term.reset()
 
 logger.log('Saliendo ...', debug.INF)
