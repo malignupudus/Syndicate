@@ -39,7 +39,7 @@ from utils.Ciphers import decrypt_rsa_private_key
 from utils.Shows import show_spec_values
 from utils.Shows import show_user_admins
 from utils.Shows import show_user_rooks
-from utils.Extracts import extract_root_administrators
+from utils.Extracts import real_extract_root_administrators
 from utils.sys_utils import uniqdata
 
 # Configuration
@@ -268,9 +268,11 @@ if (user == None) or (passphrase == None) or (admin == None) or (rsa_password ==
     print('No has definido el usuario, la frase de contraseña, el administrador o la contraseña de la clave privada')
     sys.exit(1)
 
-print('Verificando si existe el administrador ...') if (len(admin) == 1) else print('Verificando si existen los administradores ...')
+print('Verificando existencia y limites del administrador ...') if (len(admin) == 1) else print('Verificando existencia y limites de los administradores...')
 
 for _ in admin:
+
+    _ = str(_)
 
     max_bot = wrap.read(_, 'max_bot', agent=wrap.USE_ADMIN, separate=True)
 
@@ -287,7 +289,7 @@ for _ in admin:
 
             if (enums >= max_bot):
 
-                print('Limite de creación de bot\'s superados ...')
+                print('Limite de creación de bot\'s superados por parte de "%s" ...' % (_))
                 sys.exit(1)
 
         else:
@@ -328,7 +330,7 @@ wrap.add(bot_id, {
                     'username':user,
                     'passphrase':db_hash.hash(passphrase, iterations, security_chars, security_number, decrement_number),
                     'profile':profile_dirname,
-                    'admins':uniqdata.uniqdata(admin+extract_root_administrators.extract()),
+                    'admins':uniqdata.uniqdata(admin+real_extract_root_administrators.extract()),
                     'keys':rsa.export(),
                     'commands':[],
                     'data':[],

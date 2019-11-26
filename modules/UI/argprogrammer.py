@@ -19,7 +19,7 @@ default_parameter = 'Parámetros principales'
 default_help_key = 'help'
 default_error_message = verbose('El parámetro "%s" no es válido')
 default_require_message = verbose('El parámetro "%s" es necesario para continuar con la operación')
-default_uniq_message = verbose('El valor "%s" no está permitido debido a qué no es igual a este/estos valor/es "%s"')
+default_uniq_message = verbose('El valor "%s" no está permitido debido que no es igual a este/estos valor/es "%s"')
 default_type_message = verbose('El tipo de dato del valor "%s" no es igual a "%s"')
 
 default_config_help = ''
@@ -90,7 +90,7 @@ class Parser(object):
 
         except TypeError:
 
-            raise TypeError('Se necesitan %d para qué el formato sea correcto o el tipo de dato usado no es el correcto' % (len(args)))
+            raise TypeError('Se necesitan %d para que el formato sea correcto o el tipo de dato usado no es el correcto' % (len(args)))
 
     def set_args(self, args):
 

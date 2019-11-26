@@ -9,13 +9,14 @@ from utils.Wrappers import wrap
 from utils.Checks import key_check_in_dict
 from utils.Connections import connector
 from utils.UI import debug
-from utils.Extracts import extract_root_administrators
+from utils.Extracts import real_extract_root_administrators
 from utils.Ciphers import simplycrypt
 from utils.Ciphers import generate_uniqkey
 from utils.sys_utils import create_folder
 from utils.Checks import check_url
 from utils.sys_utils import bytes_convert
 from utils.Shows import show_user_rooks
+from utils.sys_utils import enum_bots
 
 from conf import global_conf
 
@@ -140,8 +141,8 @@ def execute(data, log):
             log.logger('Creado, el directorio de perfil: "%s"' % (profile_dir), debug.PER)
 
         bot_data['profile'] = profile_dir
-        bot_data['admins'] = extract_root_administrators.extract()
-
+        bot_data['admins'] = real_extract_root_administrators.extract()
+        
         if (bot_id in show_user_rooks.show()):
 
             log.logger('No se puede almacenar los datos de "%s" en el almacén, porque ya existe' % (bot_id), debug.WAR)

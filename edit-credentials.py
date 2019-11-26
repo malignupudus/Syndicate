@@ -1,13 +1,29 @@
 #!/usr/bin/env python3
 
+while(1):
+
+    try:
+
+        from utils.sys_utils import no_terminate
+
+    except KeyboardInterrupt:
+
+        continue
+
+    else:
+
+        break
+
 import sys
 
 from modules.Ciphers import db_hash
 from modules.UI import argprogrammer
 
 from utils.Wrappers import wrap
+from utils.Extracts import real_extract_root_administrators
 from utils.sys_utils import pos_convert
 from utils.Shows import show_user_admins
+from utils.sys_utils import convert
 
 from conf import global_conf
 
@@ -34,7 +50,7 @@ parser.set_head('''
        -----------------   -------------------------------------------------------''')
 
 parser.add(['-h', '--help'], 'help', help='Mostrar la ayuda y sale', group=group_optionals)
-parser.add(['-t', '--data-type'], 'data_type', help='El tipo de dato. Pre-determinado: "str"', default='str', group=group_optionals)
+parser.add(['-t', '--data-type'], 'data_type', help='El tipo de dato. Pre-determinado: "str". Permitidos: [str, int, bool]', default='str', uniqval=['str', 'int', 'bool'], group=group_optionals)
 
 parser.add(['-a', '--agent'], 'agent', help='EL tipo de agente a utilizar. BOT:"En caso de editar el bot" y ADMIN:"En caso de editar el administrador"', default=default_agent, uniqval=['BOT', 'ADMIN'])
 
@@ -64,8 +80,6 @@ security_chars = args.security_chars
 decrement_number = pos_convert.convert(args.decrement_number)
 data_type = args.data_type
 
-wrapper_instance = wrap.read(identifier, key, separate=True) if (agent.lower() == 'bot') else wrap.read(identifier, key, agent=wrap.USE_ADMIN, separate=True)
-
 if (data_type == 'int'):
 
     try:
@@ -79,7 +93,7 @@ if (data_type == 'int'):
 
 elif (data_type == 'bool'):
 
-    if (value.lower() == 'false'):
+    if not (convert.convert_bool(value.lower())):
 
         value = False
 
@@ -93,7 +107,7 @@ elif (data_type == 'str'):
 
 else:
 
-    print('El tipo de dato aún no está disponible ...')
+    print('El tipo de dato no está disponible ...')
     sys.exit(1)
 
 if (agent == 'bot'):
@@ -109,6 +123,11 @@ else:
     print('No se reconocio al agente.')
     sys.exit(1)
 
+if (wrapper_instance == False) and (data_type == 'str'):
+    
+    print('Ocurrio un error, no se puede seguir operando.')
+    sys.exit(1)
+
 if (delete == True):
 
     for _ in no_delete:
@@ -117,11 +136,6 @@ if (delete == True):
 
             print('No está permitido la eliminación de "%s"' % (_))
             sys.exit(1)
-
-if (wrapper_instance == False):
-    
-    print('Ocurrio un error, no se puede seguir operando.')
-    sys.exit(1)
 
 else:
 
@@ -215,13 +229,13 @@ else:
             
             result = wrap.write(identifier, key, value, separate=True) if (agent == 'bot') else wrap.write(identifier, key, value, agent=wrap.USE_ADMIN, separate=True)
 
-            if (result == False):
+            if (str(result) == 'False'):
 
                 print('No se pudo agregar: "%s => %s"' % (key, value))
 
             else:
 
-                print('Agregado: "%s" a "%s"' % (key, value))
+                print('Agregado: "%s" a "%s"' % (value, key))
 
                 if (_passphrase_is == True):
 
