@@ -161,18 +161,16 @@ class CreateComplement(argprogrammer.Parser):
             self.__start_version = False
             super().add(['-%s-version' % (self.complement_name)], 'version', 'Muestra la versión actual del complemento', type=bool, group=self.optionals, action=True)
 
-    def set_version(self, version, author, social_networks=None):
+    def set_version(self, version, author, social_networks=[]):
 
         version = str(version)
         author = str(author)
 
-        if not (social_networks == None):
+        if not (isinstance(social_networks, list) == True):
 
-            if not (isinstance(social_networks, list) == True):
+            raise TypeError('El tipo de dato para las redes sociales debe ser una lista')
 
-                raise TypeError('El tipo de dato para las redes sociales debe ser una lista')
-
-            social_networks = [str(x) for x in social_networks]
+        social_networks = [str(x).strip() for x in social_networks]
 
         self.__check_version(version)
 
