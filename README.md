@@ -15,6 +15,8 @@ Tratare de englobar todas las caracteristicas posibles de Syndicate, espero no m
 * Sistema antí fuerza bruta: Esto es relativo. Relativo según las configuraciones que ejerce el administrador y el mismo usuario. porque el administrdor decide cómo **Evie**, va a bloquear a un usuario, cuándo y porqué. Dejaré la explicación más adelante.
 * Los complementos se pueden actualizar de forma transparente o lo que quiere decir, que sí tenemos una máquina infectada podremos cambiar el código desde el servidor y ejecutarlo en la máquina correspondiente.
 * Además del cifrado que viene incorporado, podemos agregarle una capa más con https
+* Puedes crear tu propia forma de comunicarte, por lo tanto tiene dinamismo.
+* Los complementos le temen al disco duro, prefieren quedarse en memoria
 
 ### Tipos de configuración
 
@@ -274,7 +276,79 @@ Ejecutamos: [control.py](control.py) para interactuar con el **Rook** de forma i
 
 **Nota**: Puede usar el parámetro "**-h, --help**" en la mayoria de herramientas para ver la ayuda.
 
+## Comandos
+
 ## Complementos
+
+### Complementos implementados por defecto:
+
+Actualmente solo están estos complementos:
+
+1. microrecord: Graba el micrófono
+2. inject: Inyecta **shellcode** o un **ejecutable** en un proceso (Válido sólo para **Windows**)
+5. keylogger: Registra las pulsaciones del teclado
+7. usbDumper: Puede copiar todos los archivos y directorios que tengan los permisos de lectura correspondientes
+8. screenshot: Tomá una captura de pantalla a todas las pantallas disponibles
+9. websnap: Tomá una captura a la webcam
+10. symplix: Cifra los archivos, algo así como un ransomware, pero sin mostrar el mensaje
+11. hjclipboard: Copia o pega algún texto en el portapapeles
+12. hulk: Hace un ataque de denegación de servicios (DoS)
+13. GeoIP: Geolocaliza la dirección IP (**Requiere conexión a Internet**)
+14. erica: Usa los recursos de la victima para tratar de crackear una Suma de verificación (Hash)
+
+**ADVERTENCIA**: **Hulk** está modificado para que actue de manera destructiva y puede agotar los recursos de nuestro dispositivo, por favor hagalo bajo su propia responsabilidad y criterio.
+
+*Puede ver la ayuda de cada complemento ejecutando: ./evie.py -\<nombre del modulo\>-help*
+
+### Jerarquia de archivos:
+
+Para crear un complemento se necesita saber algunas cosas, cómo la jerarquia de archivos:
+
+```
+complemento/
+├── evie
+│   ├── init.py
+│   └── params.py
+└── rook
+    └── src
+        └── init.py
+```
+
+*Usé el comando tree para representar la estructura*
+
+* En la raiz, el nombre del complemento (**No se cómo funcionaria con espacios**) y éste no debe llevar puntos (**.**)
+* Luego observamos la carpeta **evie**, que contiene dos archivos "**init.py**" y "**params.py**".
+  - **init.py**: Es necesario para poder ejecutar el complemento y es donde se encuentra el código para interactuar con el "**init.py**" del **rook**
+  - **params.py**: No es necesario, su objetivo es de crear parámetros para interactuar dinámicamente antes de ejecutar **evie.py**, aunque no es necesario que tenga parámetros, puede ejecutar cualquier código que desee.
+* Luego vemos la siguiente carpeta "**rook/src**" y se encuentra otro "**init.py**", donde debe contener las funciones que ejecutara el **Jacob**
+
+
+
+Para crear un **conector** para Evie, debe tener obligatoriamente la función **main** incluida en el **init.py** y sólo puede tener algunos o todos estos parámetros:
+
+* result: El resultado del **init.py** del **rook**
+* log: La función para imprimir texto en la salida al estilo de Evie. La función acepta dos parámetros:
+  - text: El texto que deseamos imprimir
+  - level: El nivel a usar, recomiendo usar [debug](utils/UI/debug.py) y usar atributos nmotécnicos:
+    - INF o 1: INFORME, quiere decir que lo que se muestra en pantalla sólo es un pequeño mensaje casi sin importancia
+    - WAR o 2: ADVERTENCIA, debe estar atento a lo que está pasando
+    - PER o 3: PERSONAL, Los que se imprime tiene información sensible
+    - COM o 4: COMPROMETIDO, debe tener cuidado con lo que se está haciendo o pasó
+* bot_id: El identificador del rook
+* remote_addr: La dirección IP del cliente y su puerto remoto representado en una tupla: (address, port)
+* function: La función que se ejecuto (**Util para cuando se haya muchas funciones en el init.py del rook**)
+* exception: La excepción que se produce. En caso de que no haya ninguna el valor es «None»
+* args: Sí **params.py** existe y tiene la función "communicate", el valor que retorna estará en este parámetro en un «dict». Algo así: {'complemento':<\valor retornado\>}
+
+**Notas**:
+
+* El **init.py** del **rook** debe tener funciones y no clases, puede mas no debe, porque simplemente [payload.py](payload.py) no lo ejecutará. Todo esto puede variar si usted creá su propia forma de interactuar.
+* En [debug](utils/UI/debug.py) los niveles se representarian de la siguiente manera:
+  - **debug.INF**: INFORME
+  - **debug.WAR**: ADVERTENCIA
+  - **debug.PER**: PERSONAL
+  - **debug.COM**: COMPROMETIDO
+* Los complementos se encuentran en [complements/tools](complements/tools)
 
 ## Plataformas
 
@@ -344,6 +418,15 @@ sudo pip install PyAudio==0.2.11
 Usted se estará preguntado: *¿Windows?, ya mencionaste que sólo funciona en **Linux***, Claro, estos requerimientos son para los complementos dependiendo del SO a atacar.
 
 ## Limitaciones
+
+Aquí les mostrare un listado de limitaciones, pero además de limitaciones, también son cosas en la que estaré trabajando:
+
+* [control.py](control.py) no puede leer correctamente caracteres especiales como la "**ñ**"
+* Los complementos requieren módulos de Python, por lo tanto la compilación varia dependiendo de ello.
+* Está en fase **beta**, por lo que puede tener errores, pero he trabajado mucho para que no los tenga
+* Compilarlo a un ejecutable puede hacer que "pese" mucho
+* Falta documentar muchas cosas
+* Sólo está probado en una distribución (**Kali Linux**), no se cómo actuaria en otra plataformas. Aunque el [Payload](payload.py) se ejecuta de igual forma tanto en **Linux** cómo en **Windows**
 
 ## Capturas de pantalla
 
