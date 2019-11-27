@@ -615,6 +615,35 @@ Muchas herramientas esconden algunas funciones, que si no las mencionara acá, t
 
 ## Sistema Anti Fuerza bruta
 
+El sistema anti fuerza bruta de **Syndicate** es sencillo, primero tendremos que compreder que es el **Hash dinámico**, cosa que ya explique en las **aclaratorias**.
+
+En **Syndicate** al crear un usuario además de la información de perfil, existen algunos datos de seguridad, cómo son los *Caracteres de seguridad*, *Número de seguridad*, *Número de disminución* e *Iteraciones*; Los cuales su funcionamiento principal es generar un Hash. El hash puede tener los mismos caracteres, pero si se introducén cualquier dato diferente al resto de los datos de seguridad el Hash será diferente.
+
+Mientras el proceso sea más lento, mejor en un buen sentido, *¿Por qué?*, simplemente porque si un **atacante** quiere hacer fuerza bruta al servidor, obligatoriamente tiene que tener: El usuario, Frase de contraseña, Los datos de seguridad, La clave pública del servidor, la clave privada y la clave única inclusive.
+
+De hecho otra cosa que es muy importante en cuanto a la seguridad es la **Clave única** que cambia cada vez que el **Jacob** al que le pertenece, inicia sesión.
+
+Claro que eso no es todo, el **atacante** debe conocer la ruta del servidor que puede ser *una aguja en un pajar*.
+
+Sumando todo esto, también nos vemos que en la configuración *especificamente las claves* **honeypot** y **login** vemos unas *sub claves*, como pueden ser:
+* login:
+  - **max_retry**: El maximo de intentos fallídos
+  - **retry_seconds**: El tiempo de espera
+  - **denied_method**: El método de denegación que pueden ser:
+    - **forIP**: Bloquea a un usuario por dirección IP. Tiene sus pros y contras; entre sus pros puede ser que no es tan fastidioso, ya que si un atacante está bloqueado por dirección IP, nosotros (Los usuarios) podemos acceder cómo si no fuera pasado nada, pero entre sus contras, muy fácil de bypassear
+    - **forRetry**: Bloquea a un usuario por el nombre en vez de la dirección IP. Es bueno porque así no se bypassea tan fácil, pero también nos bloquearía a nosotros.
+* honeypot:
+  - **user_agent_black_list**: Bloquea a un usuario por **Agente de usuario**
+  - **blacklist**: Bloquea por dirección IP
+  - **honeypot_list**: En vez de bloquear *¿Qué tal si usaramos una herramienta cuando haya un coincidencia?*; así es, por ejemplo podriamos usar **nmap**, cuando haya una coincidencia en la lista para escanear a ese usuario.
+    *Necesitamos especificar las herramientas a usar en la clave **tools** *
+    
+**Nota**: También disponemos de **expresiones regulares** en todas las listas. Pueden ver más informacion en el [Archivo de Configuración](auto-config.sh)
+
+*¿Eso es todo?*... ¡NO!. Si ingresamos por la URL del servidor en nuestro navegador, vemos que nos salta una autenticación le digo que *ese es el panel de control web falso*, es mera distracción 3:).
+
+De hecho trato de simular **Apache** en la información que se pueda obtener. Puedes editar los valores en el [Archivo de configuración](auto-config.sh) y las plantillas en [templates/](templates/)
+
 ## Plataformas
 
 * Lamentablemente sólo la probé en Kali linux, pero puede experimentar en otras plataformas.
