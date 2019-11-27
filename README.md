@@ -320,7 +320,7 @@ Sí ocurre un error puede ser por los siguientes motivos:
 
 ### Comandos
 
-En la segunda captura de pantalla en la sección **Capturas de Pantalla**, podemos observar varios *comandos* en la parte inferios, esta es su explicación:
+En la segunda captura de pantalla en la sección **Capturas de Pantalla**, podemos observar varios *comandos* en la parte inferior, esta es su explicación:
 
 * **listBots**: Lista los **rook's** disponibles en el buffer
 * **getData**: Muestra los datos de un **rook**
@@ -345,6 +345,8 @@ En la segunda captura de pantalla en la sección **Capturas de Pantalla**, podem
   **Los puntos serián son enrealidad los "*redirectors*"**
 * **sharedFiles**: Obtiene los archivos que hemos subido
 * **addQueue**: Manda un comando a la cola de comandos del **rook** usando el meta-lenguaje **Sumerio**. **Ya explicaré que es ésto**
+
+*Los comandos en Syndicate también son los privilegios de un **Jacob** *
 
 ### Meta-lenguaje *Sumerio*
 
@@ -403,7 +405,8 @@ Ejemplo de configuración de un proxy. *En mi caso configuraré Tor y un proxy q
 En la salida de Python:
 
 ```python
-{'proxy': [{'proxy_type': 'SOCKS4', 'proxy_addr': '127.0.0.1', 'proxy_port': 9050, 'rds': True, 'username': None, 'password': None}, {'proxy_type': 'HTTP', 'proxy_addr': '194.143.151.96', 'proxy_port': 36639, 'rds': True, 'username': None, 'password': None}]}```
+{'proxy': [{'proxy_type': 'SOCKS4', 'proxy_addr': '127.0.0.1', 'proxy_port': 9050, 'rds': True, 'username': None, 'password': None}, {'proxy_type': 'HTTP', 'proxy_addr': '194.143.151.96', 'proxy_port': 36639, 'rds': True, 'username': None, 'password': None}]}
+```
 
 *¿Sencillo no? :'v*
 
@@ -422,8 +425,6 @@ En la salida:
 ```
 
 En este caso uso el complemento **erica** para "crackear" el hash "**0de8e6b341ad870ed79bc7da420df763**" usando una lista de contraseñas en formato **JSON** que se encuentra en "**/tmp/wordlist.lst**".
-
-### Privilegios
 
 **Nota**: Puede usar el parámetro "**-h, --help**" en la mayoria de herramientas para ver la ayuda.
 
@@ -473,8 +474,6 @@ complemento/
   - **params.py**: No es necesario, su objetivo es de crear parámetros para interactuar dinámicamente antes de ejecutar **evie.py**, aunque no es necesario que tenga parámetros, puede ejecutar cualquier código que desee.
 * Luego vemos la siguiente carpeta "**rook/src**" y se encuentra otro "**init.py**", donde debe contener las funciones que ejecutara el **Jacob**
 
-
-
 Para crear un **conector** para Evie, debe tener obligatoriamente la función **main** incluida en el **init.py** y sólo puede tener algunos o todos estos parámetros:
 
 * result: El resultado del **init.py** del **rook**
@@ -501,9 +500,149 @@ Para crear un **conector** para Evie, debe tener obligatoriamente la función **
   - **debug.COM**: COMPROMETIDO
 * Los complementos se encuentran en [complements/tools](complements/tools)
 
+Ejemplo de la función **main** en el **init.py** en **Evie**:
+
+```python
+from utils.UI import debug # Importamos 'debug' para usar la nmotecnica en los niveles
+
+def main(result, log):
+
+  log.logger('El resultado es: {}'.format(result), debug.PER)
+
+```
+
+Un ejemplo realista que les pudiera mostrar es **erica** (**Gracias kirari** :D):
+
+```python
+from utils.UI import evieModule
+from utils.UI import debug
+
+def main(result, log, bot_id):
+
+    if (isinstance(result, tuple)):
+
+        if (len(result) == 2):
+
+            wrap = evieModule.CreateDatabase('erica')
+            (success, pass_to_hash) = result
+
+            if (success == True):
+
+                log.logger('Hash crackeado => {}'.format(pass_to_hash), debug.PER)
+
+            else:
+
+                log.logger('El hash no se pudo crackear => {}'.format(pass_to_hash), debug.WAR)
+
+            log.logger('Almacenando ...', debug.INF)
+
+            if (bot_id in list(wrap.getall().keys())):
+
+                if (wrap.write(bot_id, 'hash', result) == True):
+
+                    log.logger('¡Hash almacenado!', debug.INF)
+
+                else:
+
+                    log.logger('¡Error almacenando el Hash!', debug.COM)
+
+            else:
+
+                if (wrap.add(bot_id, {'hash':[result]}) == True):
+
+                    log.logger('¡Hash almacenado por primera vez!', debug.INF)
+
+                else:
+
+                    log.logger('¡Error almacenando el Hash!', debug.COM)
+
+        else:
+
+            log.logger('¡La longitud del resultado no es correcta!', debug.WAR)
+
+    else:
+
+        log.logger('El tipo de dato de los resultados del crackeo no es correcto ...', debug.WAR)
+
+```
+
+Para el lado del **rook** sería:
+
+```python
+from hashlib import md5 as _md5, sha1 as _sha1, sha224 as _sha224, sha256 as _sha256, sha384 as _sha384, sha512 as _sha512
+
+class HashNotFound(Exception):
+
+    '''
+    Llamado cuando el hash no existe
+    '''
+
+hash_list = [_md5, _sha1, _sha224, _sha256, _sha384, _sha512]
+
+def Crack(password_hash, wordlist, hash_func):
+
+    if (isinstance(wordlist, list) != True):
+
+        raise TypeError('El tipo de dato de la lista de hashes no es correcta')
+
+    hash_ = [x for x in hash_list if (x.__name__[8:].lower() == hash_func.lower())]
+
+    if ([] == hash_):
+
+        raise HashNotFound('El hash no existe')
+
+    else:
+
+        hash_ = hash_[0]
+
+    for _ in wordlist:
+
+        _ = _.strip()
+
+        if (hash_(_.encode()).hexdigest() == password_hash):
+
+            return(True, _)
+
+    return(False, password_hash)
+
+```
+
 ## Funciones ocultas
 
+Muchas herramientas esconden algunas funciones, que si no las mencionara acá, tendrias que leer el código fuente. Aquí un listado:
+
+* [evie.py](evie.py):
+
 ## Sistema Anti Fuerza bruta
+
+El sistema anti fuerza bruta de **Syndicate** es sencillo, primero tendremos que compreder que es el **Hash dinámico**, cosa que ya explique en las **aclaratorias**.
+
+En **Syndicate** al crear un usuario además de la información de perfil, existen algunos datos de seguridad, cómo son los *Caracteres de seguridad*, *Número de seguridad*, *Número de disminución* e *Iteraciones*; Los cuales su funcionamiento principal es generar un Hash. El hash puede tener los mismos caracteres, pero si se introducén cualquier dato diferente al resto de los datos de seguridad el Hash será diferente.
+
+Mientras el proceso sea más lento, mejor en un buen sentido, *¿Por qué?*, simplemente porque si un **atacante** quiere hacer fuerza bruta al servidor, obligatoriamente tiene que tener: El usuario, Frase de contraseña, Los datos de seguridad, La clave pública del servidor, la clave privada y la clave única inclusive.
+
+De hecho otra cosa que es muy importante en cuanto a la seguridad es la **Clave única** que cambia cada vez que el **Jacob** al que le pertenece, inicia sesión.
+
+Claro que eso no es todo, el **atacante** debe conocer la ruta del servidor que puede ser *una aguja en un pajar*.
+
+Sumando todo esto, también nos vemos que en la configuración *especificamente las claves* **honeypot** y **login** vemos unas *sub claves*, como pueden ser:
+* login:
+  - **max_retry**: El maximo de intentos fallídos
+  - **retry_seconds**: El tiempo de espera
+  - **denied_method**: El método de denegación que pueden ser:
+    - **forIP**: Bloquea a un usuario por dirección IP. Tiene sus pros y contras; entre sus pros puede ser que no es tan fastidioso, ya que si un atacante está bloqueado por dirección IP, nosotros (Los usuarios) podemos acceder cómo si no fuera pasado nada, pero entre sus contras, muy fácil de bypassear
+    - **forRetry**: Bloquea a un usuario por el nombre en vez de la dirección IP. Es bueno porque así no se bypassea tan fácil, pero también nos bloquearía a nosotros.
+* honeypot:
+  - **user_agent_black_list**: Bloquea a un usuario por **Agente de usuario**
+  - **blacklist**: Bloquea por dirección IP
+  - **honeypot_list**: En vez de bloquear *¿Qué tal si usaramos una herramienta cuando haya un coincidencia?*; así es, por ejemplo podriamos usar **nmap**, cuando haya una coincidencia en la lista para escanear a ese usuario.
+    *Necesitamos especificar las herramientas a usar en la clave **tools** *
+    
+**Nota**: También disponemos de **expresiones regulares** en todas las listas. Pueden ver más informacion en el [Archivo de Configuración](auto-config.sh)
+
+*¿Eso es todo?*... ¡NO!. Si ingresamos por la URL del servidor en nuestro navegador, vemos que nos salta una autenticación le digo que *ese es el panel de control web falso*, es mera distracción 3:).
+
+De hecho trato de simular **Apache** en la información que se pueda obtener. Puedes editar los valores en el [Archivo de configuración](auto-config.sh) y las plantillas en [templates/](templates/)
 
 ## Plataformas
 
@@ -582,6 +721,7 @@ Aquí les mostrare un listado de limitaciones, pero además de limitaciones, tam
 * Compilarlo a un ejecutable puede hacer que "pese" mucho
 * Falta documentar muchas cosas
 * Sólo está probado en una distribución (**Kali Linux**), no se cómo actuaria en otra plataformas. Aunque el [Payload](payload.py) se ejecuta de igual forma tanto en **Linux** cómo en **Windows**
+* Al presionar CTRL-Z puede que dejen de funcionar algunas funciones en [evie.py](evie.py)
 
 ## No documentado
 
