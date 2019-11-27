@@ -21,6 +21,7 @@ import os
 from utils.Checks import check_headers
 from utils.Checks import check_url
 from utils.Ciphers import simplycrypt
+from utils.sys_utils import set_proxy; set_proxy.autoconf()
 
 from modules.UI import iInput
 from modules.UI import argprogrammer
