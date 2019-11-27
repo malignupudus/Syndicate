@@ -8,10 +8,14 @@ import threading
 from inspect import ismethod
 from time import sleep
 
+from utils.Checks import is_public_key
+
 from modules.UI import argprogrammer
 
 # Cargamos las dependencias de los complementos
 from payload_conf import modules
+
+from conf import global_conf
 
 verbose = False
 
@@ -21,10 +25,22 @@ publicKey_server = None
 password = None
 headers = None
 bot_id = None
+iterations = global_conf.hashing['iterations']
+security_chars = global_conf.hashing['chars']
+security_number = global_conf.hashing['security_number']
+decrement_number = global_conf.hashing['decrement_number']
 
 # Métodos que no están permitidos:
 
-no_execute = ['__init__', 'setServerCredentials', 'setCredentials', 'send', '_bot__sendData', 'setDirector']
+no_execute = [
+                '__init__',
+                'setServerCredentials',
+                'setCredentials',
+                'send',
+                '_bot__sendData',
+                'setDirector'
+                
+            ]
 
 # Init UTILS
 
@@ -44,7 +60,7 @@ def execute_init(instance, function, value):
 
     except Exception as Except:
 
-        instance.send((pattern_key_save + 'error_' + function, str(Except)))
+        instance.send((pattern_key_save + 'error_' + function, printI(str(Except))))
 
     else:
 
@@ -135,11 +151,11 @@ def set_keys(pubKey_server, privKey_client):
 
     (publicKey_server, privateKey_client) = (pubKey_server, privKey_client)
 
-def set_credentials(passwd, bot):
+def set_credentials(passwd, bot, chars, securityNumber, decrementNumber, iters):
 
-    global password, bot_id
+    global password, bot_id, security_chars, security_number, decrement_number, iterations
 
-    (password, bot_id) = (passwd, bot)
+    (password, bot_id, security_chars, security_number, decrement_number, iterations) = (passwd, bot, chars, securityNumber, decrementNumber, iters)
 
 def set_headers(head):
 
@@ -159,19 +175,19 @@ def init(*args, **kwargs):
         
         rook_obj.setServerCredentials(publicKey_server)
     
-    except:
+    except Exception as Except:
 
-        printI('Error importando la clave pública de Evie')
+        printI('Error importando la clave pública de Evie. Excepción: {}'.format(Except))
         
         return(False)
     
     try:
         
-        rook_obj.setCredentials(password, bot_id, privateKey_client)
-    
-    except:
+        rook_obj.setCredentials(password, bot_id, privateKey_client, security_chars, iterations, security_number, decrement_number)
+
+    except Exception as Except:
             
-        printI('Error importando la clave privada del rook')
+        printI('Error importando la clave privada del rook. Excepción: {}'.format(Except))
         
         return(False)
 
@@ -181,7 +197,7 @@ def init(*args, **kwargs):
     
     except Exception as Except:
 
-        printI(str(Except))
+        printI('ERROR: {}'.format(Except))
 
         return(False)
 
@@ -202,7 +218,8 @@ if __name__ == '__main__':
 
     # Grupos
 
-    group_optionals = 'Opcionales'
+    group_optionals = 'Configuración'
+    group_security = 'Seguridad'
 
     parser = argprogrammer.Parser()
 
@@ -223,8 +240,9 @@ if __name__ == '__main__':
 
     # Opcionales
 
-    parser.add(['-P', '--path'], 'path', 'La ruta del servidor. Pre-determinado: "{}"'.format(default_path), default=default_path)
     parser.add(['-h', '--help'], 'help', 'Mostrar ayuda y sale', group=group_optionals)
+
+    parser.add(['-P', '--path'], 'path', 'La ruta del servidor. Pre-determinado: "{}"'.format(default_path), default=default_path)
     parser.add(['-proto'], 'proto', 'El esquema a utilizar. Sólo es posible usar: [HTTP, HTTPS]. Pre-determinado: "{}"'.format(default_proto), uniqval=['http', 'https'], default=default_proto, group=group_optionals)
     parser.add(['-headers'], 'headers', 'Los encabezados HTTP. Sintaxis: "key=value&key1=value=1"', type=dict, group=group_optionals)
     parser.add(['-db-pass'], 'db_pass', 'La contraseña para encriptar la base de datos', group=group_optionals)
@@ -232,6 +250,13 @@ if __name__ == '__main__':
     parser.add(['-sleep'], 'sleep', 'El tiempo de espera para el envío de cada respuesta entre los diferentes servidores secundaros. Pre-determinado: "{}"'.format(default_sleep), type=int, default=default_sleep, group=group_optionals)
     parser.add(['-sleep-check'], 'sleep_check', 'El intervalo del bucle, para verificar comandos en cola. Pre-determinado: "{}"'.format(default_sleep_check), group=group_optionals, type=int, default=default_sleep_check)
     parser.add(['-no-verbose'], 'no_verbose', type=bool, action=True, group=group_optionals)
+
+    # Seguridad
+
+    parser.add(['-i', '--iterations'], 'iterations', 'Número de iteraciones', default=iterations, group=group_security)
+    parser.add(['-sn', '--security-number'], 'security_number', 'Número de seguridad', default=security_number, group=group_security)
+    parser.add(['-dn', '--decrement-number'], 'decrement_number', 'Número de disminución', default=decrement_number, group=group_security)
+    parser.add(['-sc', '--security-chars'], 'security_chars', 'Caracteres de seguridad', default=security_chars, group=group_security)
 
     args = parser.parse_args()
 
@@ -243,6 +268,10 @@ if __name__ == '__main__':
     param_pubKey = args.pub_key
     param_privKey = args.priv_key
 
+    param_iterations = args.iterations
+    param_security_number = args.security_number
+    param_decrement_number = args.decrement_number
+    param_security_chars = args.security_chars
     param_proto = args.proto
     param_headers = args.headers
     param_db_pass = args.db_pass
@@ -287,14 +316,24 @@ if __name__ == '__main__':
 
             param_pubKey = file_object.read()
 
+        if not (is_public_key.check(param_pubKey) == True):
+
+            print('El archivo "{}" no es un buen candidato para una clave pública...')
+            sys.exit(1)
+
     if (os.path.isfile(param_privKey) == True):
 
         with open(param_privKey, 'rb') as file_object:
 
             param_privKey = file_object.read()
 
+        if not (is_public_key.check(param_privKey) == -1):
+
+            print('El archivo "{}" no es un buen candidato para una clave privada...')
+            sys.exit(1)
+
     set_keys(param_pubKey, param_privKey)
-    set_credentials(param_password, param_bot_id)
+    set_credentials(param_password, param_bot_id, param_security_chars, param_security_number, param_decrement_number, param_iterations)
     set_headers(param_headers)
     rook_hook = init(**params)
 

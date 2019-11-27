@@ -15,6 +15,7 @@ from modules.UI import rename_order
 from utils.sys_utils import convert
 from utils.Wrappers import wrap
 from utils.sys_utils import bytes_convert
+from utils.Checks import is_public_key
 
 from conf import global_conf
 
@@ -675,7 +676,7 @@ def login():
         login_bg_window = create_window((max_y//2)+2, max_x//2, (max_y//6)+3, (max_x//6)+3)
 
         login_title = create_window(1, getmaxyx(login_window)[1], (max_y//6), (max_x//6)+2)
-        login_title.bkgd(use_color(4)+curses.A_BOLD)
+        login_title.bkgd(use_color(3)+curses.A_BOLD)
         login_title.addstr('Inicie sesión para poder continuar ...', curses.A_BLINK)
 
         login_panel = new_panel(login_window)
@@ -996,6 +997,15 @@ def login():
         with open(_path_priv_key, 'r') as obj:
             
             _priv_key = obj.read()
+
+        if (is_public_key.check(_pub_key) != True) or not (is_public_key.check(_priv_key) == -1):
+
+
+            savetty()
+            print('¡El par de claves no coinciden con el formato correcto!')
+            refresh(stdscr)
+
+            return(False)
         
         _username = ''.join(_keys[0][1]).rstrip()
         _passphrase = ''.join(_keys[1][1]).rstrip()
@@ -2207,15 +2217,37 @@ def interact(jacob_obj):
 
                             if (os.path.isfile(_node_pub_key)) and (os.path.isfile(_node_priv_key)):
 
-                                _tmp_data = [_node_to_add, _node_username, _node_passphrase, _node_uniqkey, open(_node_pub_key, 'rt').read(), open(_node_priv_key, 'rt').read(), False if (_node_recover == '0') else True, _node_iterations, _node_security_number, _node_decrement_number, _node_chars]
+                                try:
 
-                                if not ('' in _tmp_data):
+                                    with open(_node_pub_key, 'rt') as _file_object:
 
-                                    _control.writeNodes(_nodes, _tmp_data)
+                                        _file_pub_key = file_object.read()
+
+                                    with open(_node_priv_key, 'rt') as _file_object:
+
+                                        _file_priv_key = file_object.read()
+
+                                except Exception as Except:
+
+                                    message.append('Error leyendo las claves: {}'.format(Except))
 
                                 else:
 
-                                    message.append('¡Faltan valores por definir!')
+                                    if (is_public_key.check(_file_pub_key) != True) or not (is_public_key.check(_file_priv_key) == -1):
+
+                                        _tmp_data = [_node_to_add, _node_username, _node_passphrase, _node_uniqkey, _file_pub_key, _file_priv_key, False if (_node_recover == '0') else True, _node_iterations, _node_security_number, _node_decrement_number, _node_chars]
+
+                                        if not ('' in _tmp_data):
+
+                                            _control.writeNodes(_nodes, _tmp_data)
+
+                                        else:
+
+                                            message.append('¡Faltan valores por definir!')
+
+                                    else:
+
+                                        message.append('¡El par de claves no está siguiendo un formato correcto!')
 
                             else:
 

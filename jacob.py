@@ -8,7 +8,7 @@ from modules.Ciphers import POO_RSA
 from utils.Checks import check_headers
 from utils.Wrappers import wrap
 from utils.Ciphers import hibrid
-from utils.sys_utils import set_proxy
+from utils.sys_utils import set_proxy; set_proxy.autoconf()
 
 from conf import global_conf
 
@@ -29,8 +29,6 @@ class control(object):
         else:
 
             self.callback = callback
-
-        set_proxy.autoconf()
 
         self.__init_uniqkey = str(init_uniqkey)
 

@@ -26,7 +26,8 @@ from utils.Checks import check_url
 from utils.Checks import check_headers
 from utils.sys_utils import bytes_convert
 from utils.Checks import key_check_in_dict
-from utils.sys_utils import set_proxy
+from utils.sys_utils import set_proxy; set_proxy.autoconf()
+from utils.Checks import is_public_key
 
 # Modulos
 
@@ -250,6 +251,11 @@ class HTTPServerHandler(BaseHTTPRequestHandler):
                         self._error400()
                         return
 
+                if (key_check_in_dict.check(_request, 'data') == False):
+
+                    self._error400()
+                    return
+
         else:
 
             self._error400()
@@ -287,10 +293,31 @@ class HTTPServerHandler(BaseHTTPRequestHandler):
                 
             elif (command == 'add_secundary_server'):
 
-                if (self._object.addserver(_data) == True):
-                    self._found200()
+                if (isinstance(_data, list) == True):
+
+                    if (len(_data) == 2):
+
+                        if (is_public_key.check(_data[1]) == True):
+
+                            if (self._object.addserver(_data) == True):
+
+                                self._found200()
+
+                            else:
+                                
+                                self._error500()
+
+                        else:
+
+                            self._error400()
+
+                    else:
+
+                        self._error400()
+
                 else:
-                    self._error500()
+
+                    self._error400()
 
             elif (command == 'addqueue'):
 
@@ -323,8 +350,6 @@ class bot(object):
         if not (path[0] == '/'):
 
             raise InvalidPath('Error en el path remoto!.')
-
-        set_proxy.autoconf()
 
         #Manejador de claves RSA
         #################################
@@ -396,10 +421,6 @@ class bot(object):
         self.security_number = int(security_number)    #
         self.decrement_number = int(decrement_number)  #
         ################################################
-
-    def getPeerQueue(self):
-
-        return(self.sendDirector(None, 'getQueue'))
 
     def getPeers(self):
 
@@ -771,6 +792,16 @@ class bot(object):
             self.servers = uniqdata.uniqdata(self.servers + _servers)
 
             return(wrap_secure.add('addserver', self.servers, self.db_pass, self.db_path))
+
+    def getLocalQueue(self):
+
+        _key = str(self.bot_id)+str(self.passphrase)+str(self.chars)+str(self.iterations)+str(self.security_number)+str(self.decrement_number)
+
+        return(wrap_secure.read('queue_{}'.format(_key), self.db_pass, self.db_path))
+
+    def getPeerQueue(self):
+
+        return(self.sendDirector(None, 'getQueue'))
 
     def getQueue(self):
 

@@ -24,6 +24,7 @@ from binascii import unhexlify
 from modules.UI import argprogrammer
 
 from utils.sys_utils import set_proxy; set_proxy.autoconf()
+from utils.Checks import is_public_key
 from utils.Checks import check_url
 from utils.Executes import execute_command
 from utils.Ciphers import simplycrypt
@@ -192,16 +193,28 @@ try:
 
                     pub_key = _obj.read().rstrip()
 
-            _data['command'][2] = 'add_secundary_server'
-            _data['data'] = [add_secundary_server, pub_key]
+            pub_key_check = is_public_key.check(pub_key)
 
-            _response = requests.post(url, data=simplycrypt.encrypt(password, _data), verify=False, timeout=global_conf.connector['timeout'], headers=headers)
+            if (pub_key_check == False):
+                
+                verbose('El archivo no está siguiendo un formato correcto de la clave pública...')
 
-            _detect_status_code(_response.status_code)
+            elif (pub_key_check == -1):
 
-            verbose('Correcto, se agrego el servidor secundario: "%s"' % (add_secundary_server))
+                verbose('¡El archivo contiene una clave privada y no una pública!')
 
-    if not (add_queue == None):
+            else:
+                
+                _data['command'][2] = 'add_secundary_server'
+                _data['data'] = [add_secundary_server, pub_key]
+
+                _response = requests.post(url, data=simplycrypt.encrypt(password, _data), verify=False, timeout=global_conf.connector['timeout'], headers=headers)
+
+                _detect_status_code(_response.status_code)
+
+                verbose('Correcto, se agrego el servidor secundario: "%s"' % (add_secundary_server))
+
+    elif not (add_queue == None):
 
         _data['command'][2] = 'addQueue'
         _data['data'] = add_queue

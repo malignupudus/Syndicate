@@ -663,7 +663,7 @@ def get_info():
 
                     elif (key == 's'):
 
-                        logger.log('Clave secreta -> {}'.format(secret_key))
+                        logger.log('Clave secreta -> {}'.format(secret_key), PER)
 
                     else:
 
