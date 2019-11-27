@@ -636,6 +636,7 @@ Muchas herramientas esconden algunas funciones, que si no las mencionara acá, t
   - **<** y **>**: Cuando estemos en el formulario de **inicio de sesión** del **Jacob**, podremos usar alguna sesión almacenada y auto-rellenarse algunos datos
   - **CTRL-X** y **CTRL-T**: CTRL-X lo usamos para copiar al portapapeles toda la salida del buffer y CTRL-T para copiar la clave única
   - **CTRL-A** y **CTRL-B**: **CTRL-A** selecciona todos los **rook's** y ejecuta el comando seleccionado para ahorrar tiempo, aunque hay algunos comandos que no se permiten ejecutar **dos** veces y **CTRL-B** para dejar de seleccionar todos los **Rook's**
+  - **CTRL-V**: En el login se puede usar **CTRL-V** para pegar el texto del portapapeles, mientras que una vez se a iniciado sesión puede usar el estándar "**CTRL+SHIFT+V**"
 * [showSOS.py](showSOS.py): No he explicado qué és, pero lo poco que les puedo decir es para mostrar los mensajes públicos:
   - Tecla **R**, **L** y **Q**: **R**, para desplazarte a la derecha, **L** para desplazarte a la izquierda y **Q** para salir
 
