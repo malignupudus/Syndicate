@@ -759,7 +759,7 @@ class handler(BaseHTTPRequestHandler):
 
                 return(True)
 
-        elif (convert.convert_bool(user_agent_list) == True) or (convert.convert_bool(regular_expression_for_userAgent)):
+        if (convert.convert_bool(user_agent_list) == True) or (convert.convert_bool(regular_expression_for_userAgent)):
 
             if (self.eject_to(user_agent_list, self.headers['User-Agent'], regular_expression_for_userAgent, self.imprint) == True):
 
@@ -770,13 +770,9 @@ class handler(BaseHTTPRequestHandler):
 
                 return(True)
 
-        elif (convert.convert_bool(honeypot_list) == True) or (convert.convert_bool(regular_expression_for_address) == True):
+        if (convert.convert_bool(honeypot_list) == True) or (convert.convert_bool(regular_expression_for_address) == True):
 
             self.honeypot(honeypot_list, self.client_address[0], self.imprint)
-
-        else:
-
-            self.imprint('¡El sistema de prevención de intrusos no está habilitado!', WAR)
 
     def replace_commands(self, text):
         
