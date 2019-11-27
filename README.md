@@ -693,7 +693,7 @@ Y luego instalamos los...
 
 Puede optar por una fácil instalación con PIP, pero hay algunos inconvenientes que dependen de usted.
 
-* En primer lugar, lo que si es necesario ejecutar es [requirements/requiremnts.txt](requirements/requirements.txt):
+* En primer lugar, lo que si es necesario ejecutar es [requirements/requirements.txt](requirements/requirements.txt):
 
 ```bash
 python3 -m pip install -r requirements/requirements.txt
