@@ -1,17 +1,17 @@
 # Syndicate Project
 > Syndicate es un Framework totalmente escrito en Python (**3**) para crear Botnet's, así es, no es sólo para crear una botnet es para crear cientos o miles, además...
 
-Tratare de englobar todas las caracteristicas posibles de Syndicate, espero no me falté nada :)...
+Tratare de englobar todas las caracteristicas posibles de Syndicate, espero no me falte nada :)...
 
 ## Caracteristicas
 
 * Mutiples conexiones a la vez
-* Cifrado hibrido en las conexiones. Usando AES256 y RSA a nuestro favor podremos cifrar nuestras comunicaciones oficiales entre Evie's (**Ŝervidor**), Jacob's (**Ciente-Administrador** de los **Rook's**) y Rook's (**Cliente-bot**).
+* Cifrado hibrido en las conexiones. Usando AES256 y RSA a nuestro favor podremos cifrar nuestras comunicaciones oficiales entre Evie's (**Servidor**), Jacob's (**Ciente-Administrador** de los **Rook's**) y Rook's (**Cliente-bot**).
 * Cifrado simétrico en las bases de datos, tanto de **Evie**, como la de los **rook's**. Aunque en los accesos públicos también se usá el mismo esquema.
 * Red punto a punto. La red de los Rook's, no es igual a la de los Evie's, aunque puede haber comunicación entre ellas.
 * Multi-usuario. El administrador del servidor se encarga de crear tanto usuarios Jacob's cómo Rook's con sus respectivos privilegios.
 * Compartir Rook's entre Evie's.
-* Comunicación por servidores o lo que quiere decir, que creando una red entre Evie's puede hacer pasar cada paquete a una dirección o podría decirse nodos intermedios hasta llegar a un punto final o nodo final. La red está diseñada para que no se pueda saber que dirección envío qué y dónde, exceptuando algunas cosas qué ya explicaré después y además se tiene que configurar toda la red manualmente; Eso brinda más seguridad.
+* Comunicación por nodos o lo que quiere decir, que creando una red entre Evie's puede hacer pasar cada paquete a una dirección o podría decirse nodos intermedios hasta llegar a un punto final o nodo final (**Que vendría siendo otro Evie**). La red está diseñada para que no se pueda saber que dirección envío qué y dónde, exceptuando algunas cosas qué ya explicaré después y además se tiene que configurar toda la red manualmente; eso brinda más seguridad.
 * Uso de proxy's para mayor privacidad.
 * Sistema antí-fuerza bruta. Es relativo. Relativo según las configuraciones que ejerce el administrador y el mismo usuario. porque el administrdor decide cómo **Evie**, va a bloquear a un usuario, cuándo y porqué. Dejaré la explicación más adelante.
 * Los complementos se pueden actualizar de forma transparente o lo que quiere decir, que sí tenemos una máquina infectada podremos cambiar el código desde el servidor y ejecutarlo en la máquina correspondiente.
@@ -31,7 +31,7 @@ Existen dos tipos de configuración para que el funcionamiento de Syndicate sea 
 
 ### Tipos de usuario
 
-En Syndicate Project trato de implementar diferencias entre usuarios para simplificar las explicaciones; En el susodicho proyecto se puede encontrar cuatro tipos de usuario:
+En Syndicate Project trato de implementar diferencias entre usuarios para simplificar las explicaciones; en el proyecto se puede encontrar cuatro tipos de usuario:
 
 * **Administrador del servidor**: El administrador del servidor es una pieza obligatoria para armar el tablero. Éste se encarga de crear, configurar, manejar y mucho más, de lo que tenga que ver con el funcionamiento interno de Syndicate.
 * [Jacob](jacob.py): Él es el cliente-administrador de los **rook's**. Jacob podrá controlar tantos *rook's* cómo el *Administrador del servidor* desee.
@@ -51,11 +51,11 @@ Tengo que explicar algunas cosas que iré mencionando poco a poco a lo largo de 
 
 * **Redirector**: Es un **Rook** que pasa hacer un **servidor** (No un **Evie**) dentro de la máquina infectada; consiste en crear un servidor capaz de recibir datos, almacenarlos en una base de datos cifrada dentro de la misma máquina victima, para que luego el administrador del servidor, pueda conectarse, descargar los datos y simular ser **Evie**, con el único fín de obtener un resultado y enviarselo a un rook de forma transparante o como si no fuera sucedido nada.
   
-  El *redirector* es buena opción, cuando deseas crear un "Backup" dentro de las máquinas infectadas *¿Por qué?*, ¿Te imaginas que tu servidor central callerá? y luego cuando lo vuelvas a levantar ya es muy tardé, no tienes como recuperar la perdida de datos; hay es cuando entra *redirector* al rescate. **Claro que necesitas abrir un puerto en el corta fuegos de la victima. Syndicate se encarga de crear la conexión, tú te encargas de todo lo demás**.
+  El *redirector* es buena opción, cuando deseas crear un "Backup" dentro de las máquinas infectadas *¿Por qué?*, ¿Te imaginas que tu servidor central cayera? y luego cuando lo vuelvas a levantar ya es muy tarde, no tienes como recuperar la perdida de datos; hay es cuando entra *redirector* al rescate. **Claro que necesitas abrir un puerto en el corta fuegos de la victima. Syndicate se encarga de crear la conexión, tú te encargas de todo lo demás**.
   
 * **Hash dinámico**: En syndicate se usa un **Hash dinámico**, para hacer todo lo posble para evitar un ataque de fuerza bruta o por diccionario, usando *iteraciones*, *Número de seguridad*, *Número de disminución* y *Caracteres de seguridad*; todo esto tiene que ver con el algoritmo utilizado, pero haciendo una aclaratoria:
 
-  - **Iteraciones**: Las iteraciones son el número de veces que se repité el proceso.
+  - **Iteraciones**: Las iteraciones son el número de veces que se repite el proceso.
   - **Número de seguridad**: El número de seguridad se multiplica primero por el mismo y el resultado se usa para delimitar la ofuscación de caracteres de seguridad y luego en la siguiente iteración (**Si es que la hay**) disminuye usando el número de disminución.
   - **Número de disminución**: El número de disminución se encarga de disminuir el número de seguridad por cada segunda iteración.
   - **Caracteres se seguridad**: Los caracteres de seguridad se codifican a base64 y se "parten" y ofuscan usando el número de seguridad y disminución, para luego sumarlos con el resultado verdadero, que quiere decir, el hash.
@@ -76,7 +76,7 @@ Tengo que explicar algunas cosas que iré mencionando poco a poco a lo largo de 
 
 **Notas**:
 
-* Tú, como administrador del servidor te debes encargar de repartir a personas de confianza el token de acceso, claro sí es qué desean usar los servicios públicos.
+* Tú, como administrador del servidor te debes encargar de repartir a personas de confianza el token de acceso, claro sí es qué desean usar los servicios públicos. No es aplicable si es un **Jacob** y tiene el permiso **getToken**, porque la puede obtener sin necesidad de perdirla.
 * El token de acceso se tiene que usar mayormente para **Compatir un rook** o usar **resend**.
 * En el caso de usar **resend**, tiene que usar además del token de acceso, la clave secreta.
 * Prefiero que usted usé [sendSOS](sendSOS.py) y se comunique con el **Evie** que desee, para que tenga más seguridad en sus datos y sin limitaciones por parte de servidores externos. Aclaro ésto, porque así es la mejor manera de enviar claves secretas de forma segura. Hay otras alternativas, pero es bueno que uno mismo sea el propio servicio y no depender de otros.
@@ -87,13 +87,13 @@ Tengo que explicar algunas cosas que iré mencionando poco a poco a lo largo de 
 
 Algunas veces es mejor dejar una simulación en vez de palabras, por lo tanto [Aquí](https://onodo.org/visualizations/98665), podrá encontrar el cómo sería la red con todas las caracteristicas y [Aquí](https://onodo.org/visualizations/98748/) el cómo sería cuando **Jacob** envía datos a través de varios nodos en diferentes países.
 
-**Nota**: Aunque en [esta](https://onodo.org/visualizations/98748) demostración no explico como es el proceso en que se usan los datos encriptados, en la practica sí pasa eso.
+**Nota**: Aunque en [esta](https://onodo.org/visualizations/98748) demostración no explico como es el proceso en que se usan los datos encriptados, en la practica si pasa éso.
 
 Ahora pasemos a la explicación: Es sencilla la red, hay que saber usarla y cuándo, pero para poder entenderla hay que crear desde un principio lo que necesitamos e ir aumentando a medida que vayan incrementando los conocimientos.
 
 Primero crearemos un **Jacob** (**Administrador de los Rook's**):
 
-**Pero** antes de hacer éso, quiero aclarar que algunas herramientas necesitan acceso seguro a la base de datos que está encriptada, por lo tanto sí usted no introducé los parámetros se le va abrir un pequeño formulario requiriendo los datos. Sí no me cree, mirelo usted o mejor aún Pruébelo:
+**Pero** antes de hacer éso, quiero aclarar que algunas herramientas necesitan acceso seguro a la base de datos que está encriptada, por lo tanto sí usted no introduce los parámetros se le va abrir un pequeño formulario requiriendo los datos. Sí no me cree, mirelo usted o mejor aún Pruébelo:
 
 ```bash
 ./addadmin.py -u <Nombre de usuario> -p <Frase de contraseña> -P <Frase de contraseña de la clave privada>
@@ -119,7 +119,7 @@ Se guardo satisfactoriamente en -> conf/pass
 * Sí ejecutan alguna herramienta que requiera la información para desencriptar la base de datos, se guardará en vez de comparar en caso de que **conf/pass** no exista
 * **conf/pass** es guardado con permisos "**444**", por favor verifique que sea así con "ls -l conf/pass" o si no hagalo de forma manual: chmod 444 conf/pass una vez ha sido creada.
 
-¿Ven?, sería tedíoso que tuviera que introducir todo esas cosas, mejor usamos los poderes de la linda terminal :'D:
+¿Ven?, sería tedíoso que tuviera que introducir todas esas cosas, mejor usamos los poderes de la linda terminal :'D:
 
 ```bash
 # Primero veamos que regla estamos usando para guardar los comandos en el historial:
@@ -136,7 +136,7 @@ ignoreboth
 Ahora simplemente puede ejecutar:
 
 ```bash
-./addadmin.py -u <Nombre de usuario> -p <Frase de contraseña> -P <Frase de contraseña de la clave privada> $params
+ ./addadmin.py -u <Nombre de usuario> -p <Frase de contraseña> -P <Frase de contraseña de la clave privada> $params
 ```
 
 Al ejecutar se dará cuenta que le pide una confirmación:
@@ -157,14 +157,14 @@ Tamaño de la clave      ::   2048
 ¿Root?                  ::   0
 ->
 ```
-Debe introducir "**1**" para continuar ó "**0**" para salir, aunque "**CTRL-C**", también ayuda.
+Debe introducir "**1**" para continuar o "**0**" para salir, aunque "**CTRL-C**", también ayuda.
 
 **Notas**:
 
-* Sí no quiere que le confirmé los datos, usé "-no-confirm".
+* Sí no quiere que le confirme los datos, usé "-no-confirm".
 * Cómo puede observar, hay caracteres rellenados automáticamente, puede editarlos introduciendo los parámetros correspondientes cómo: "**-i, --iterations**" para las *Iteraciones* "**-sn, --security-number**" para el "*número de seguridad*", "**-c, --security-chars**" para los *Caracteres de seguridad* y "**-d, --decrement-number**" para el *Número de disminución* o puede editarlos en el [archivo de configuración global](conf/global_conf.py).
 * Ser **root** no es lo mismo en **Linux** que en **Syndicate**, **no se confunda**; significa que todos los **rook's** ahora pertenecerán a todos los **jacob's** que son **root**, aunque esto es relativo, ya que si el **maximo de bot's** es mayor a "**0**" no se incluirá si llegó a su maximo.
-* Pude usar [el generador de hashes de prueba](hash_generator_test.py) para **Syndicate**, si desea saber cuanto puede durar la generación y la comparación de su Hash antes de salir al campo de batalla.
+* Puede usar [el generador de hashes de prueba](hash_generator_test.py) para **Syndicate**, si desea saber cuanto puede durar la generación y la comparación de su Hash antes de salir al campo de batalla.
 
 Esperamos unos instantes, y para confirmar que todo salío perfecto, ejecuté:
 
@@ -173,10 +173,10 @@ Esperamos unos instantes, y para confirmar que todo salío perfecto, ejecuté:
 ```
 Ese comando le mostrará todos los **Jacob's** registrados.
 
-Ahora pasemos a algo mejor, creemos nuestro **rook** para un **jacob**:
+Ahora pasemos a algo mejor. Creemos nuestro **rook** para un **jacob**:
 
 ```bash
-./addbot.py -u <Nombre del rook> -p <Frase de contraseña> -P <Frase de contraseña de la clave privada> -a <Administrador> $params
+ ./addbot.py -u <Nombre del rook> -p <Frase de contraseña> -P <Frase de contraseña de la clave privada> -a <Jacob/s> $params
 ```
 
 Vemos un parámetro nuevo, "**-a**" o también podría llamarse "**--admin**". Si no razonaste correctamente, te digo que es para agregar a los **Jacob's** a el nuevo **rook**.
@@ -191,7 +191,7 @@ Eso no es todo, necesitamos configurar [Evie](evie.py) usando [auto-config.sh](a
 ```bash
 ./auto-config.sh $params
 ```
-Usted vería cada **Clave**, **Sub-Clave** y **Valor**; los segundos de duración por cada uno, varian dependiendo de sus recursos, esto se debe a que se está encriptado cada dato.
+Usted vería cada **Clave**, **Sub-Clave** y **Valor**. Los segundos de duración por cada uno, varian dependiendo de sus recursos, esto se debe a que se está encriptado cada dato.
 
 A pesar de que se muestre la configuración al finalizar, tal vez usted quiera apreciarla para un después. Lo puede hacer así:
 
@@ -262,7 +262,7 @@ Hacemos el mismo procedimiento, pero esta vez será para la **Clave Privada del 
 
 **Nota**: Puede asignarle permisos de escritutra y lectura dependiendo de su usuario al par de claves *para mayor seguridad*.
 
-*Cómo ve, deje un espacio para que no se guarde el comando en el historial*
+**Recordatorio**: *Cómo ve, deje un espacio para que no se guarde el comando en el historial*
 
 Esta vez vemos nuevos parámetros con argumentos interesantes:
 
@@ -301,7 +301,7 @@ Necesitamos interactuar con el *Rook* para ello ejecutamos [control.py](control.
 
 *Puedes observar en las **Las capturas de pantalla** cómo se vería*
 
-**Nota**: Quiero aclarar que la aplicación es una **DEMO**, no es para entornos reales, por lo tanto no te sorprendas si es igual de bonita que **Vim** ;).
+**Nota**: Quiero aclarar que la aplicación es una **DEMO**, no es para entornos reales, por lo tanto no te sorprendas si no es igual de bonita que **Vim** ;).
 
 Nos mostrara primero un panel de inicio de sesión, tenemos que rellenar los datos deacuerdo a lo aprendido
 
@@ -310,11 +310,11 @@ Al terminar de iniciar sesión lo primero que hará será enviar un comando "*pi
 Sí ocurre un error puede ser por los siguientes motivos:
 
 * No tiene privilegios para listar rook's o ejecutar *ping*
-* Ingresó una ruta incorrecta
+* Ingreso una ruta incorrecta
 * El servidor lo está bloqueando
 * El servidor no existe
 * Ingresó datos incorrectos
-* Faltán **valores**
+* Faltan **valores**
 * No existe la clave pública o la clave privada
 
 *Eso es sólo unos cuantos motivos por lo que no podrá iniciar sesión, recuerde tiene que ingresarlos exactamente cómo se creó; exceptuando a **iterations**, porque si usted coloca un número mayor al verdadero pero los demás datos son correctos, no habrá problemas.*
@@ -325,7 +325,7 @@ En la segunda captura de pantalla en la sección **Capturas de Pantalla**, podem
 
 * **listBots**: Lista los **rook's** disponibles en el buffer
 * **getData**: Muestra los datos de un **rook**
-* **getCommands**: Obtiene los comandos que serán ejecutados en la consola del sistema operativo
+* **getCommands**: Obtiene los comandos que serán ejecutados en la consola del Sistema Operativo
 * **shareBot**: Comparte un **rook** a un **evie**
 * **listServers**: Lista los servidores secundarios del **rook** seleccionado que son los servidores a los cuales lo compartimos
 * **delServer**: Borra un servidor secundario
@@ -346,6 +346,7 @@ En la segunda captura de pantalla en la sección **Capturas de Pantalla**, podem
   **Los puntos serián son enrealidad los "*redirectors*"**
 * **sharedFiles**: Obtiene los archivos que hemos subido
 * **addQueue**: Manda un comando a la cola de comandos del **rook** usando el meta-lenguaje **Sumerio**. **Ya explicaré que es ésto**
+* **executeCommand**: Manda un comando del Sistema Operativo a ser ejecutado por el **rook**
 
 *Los comandos en Syndicate también son los privilegios de un **Jacob** *
 
@@ -363,15 +364,23 @@ Sumerio es un meta-lenguaje que se utiliza en algunas partes del proyecto **Synd
   - str: String o un texto simple
   - int: Cuando queremos que sea un número
   - bool: Booleano, **True** en Sumerio es cualquier dato menos **0** o ningún dato
-  - file: Abré un archivo
-  - yaml o json: Abré un archivo que este codificado en json o yaml y lo parsea.
-  *Tenga en cuenta que se usa yaml seguro, algunas sentencias no se podrán leer. Cómo las tuplas de Python*
+  - file: Abre un archivo
+  - yaml o json: Abre un archivo que este codificado en json o yaml y lo parsea.
+  *Tenga en cuenta que se usa yaml seguro, por seguridad algunas sentencias no se podrán leer. Cómo las tuplas de Python*
   - null: No es un tipo de dato, pero sirve para dar cómo resultado "None"
   - list o tuple: Una lista o una tupla, actuan de la misma forma, pero en el caso de la tupla genera una, a partir de una lista.
 
 **Nota**: En el caso de usar una lista o una tupla necesitamos especificar el separador y el tipo de dato de cada dato de la siguiente manera:
 
 Sumerio:
+
+Si quiere practicar, puede hacerlo importando la siguiente utilidad:
+
+```python
+from utils.sys_utils import convert
+# Para usar los ejemplos ejecuté:
+convert.convert_dict( <string> )
+```
 
 ```
 ;j;<clave>=<list o tuple>:,<tipo de dato>:<valor>
@@ -397,7 +406,7 @@ Ejemplo realista:
 
 Es mejor si usamos un ejemplo más serio, cómo por ejemplo configurar la lista de proxy's que usara **Evie** o Usar algún complemento de **Syndicate** que necesite parámetros:
 
-Ejemplo de configuración de un proxy. *En mi caso configuraré Tor y un proxy que salio de un sitio cualquiera*
+Ejemplo de configuración de un proxy. *En mi caso voy a configurar Tor y un proxy que salio de un sitio cualquiera*
 
 ```
 ;a;proxy=list:,dict:;p;proxy_type=str:SOCKS4;p;proxy_addr=str:127.0.0.1;p;proxy_port=int:9050;p;rds=bool:1;p;username=null;p;password=null,dict:;e;proxy_type=str:HTTP;e;proxy_addr=str:194.143.151.96;e;proxy_port=int:36639;e;rds=bool:1;e;username=null;e;password=null
@@ -431,7 +440,7 @@ En este caso uso el complemento **erica** para "crackear" el hash "**0de8e6b341a
 
 ## Complementos
 
-Los complementos son una parte escencial de **Syndicate**, amplia la capacidad de funciones.
+Los complementos son una parte esencial de **Syndicate**, amplia la capacidad de las funciones.
 
 ### Complementos implementados por defecto:
 
@@ -493,7 +502,7 @@ Para crear un **conector** para Evie, debe tener obligatoriamente la función **
 
 **Notas**:
 
-* El **init.py** del **rook** debe tener funciones y no clases, puede mas no debe, porque simplemente [payload.py](payload.py) no lo ejecutará. Todo esto puede variar si usted creá su propia forma de interactuar.
+* El **init.py** del **rook** debe tener funciones y no clases, puede mas no debe, porque simplemente [payload.py](payload.py) no lo ejecutará. Todo esto puede variar si usted crea su propia forma de interactuar.
 * En [debug](utils/UI/debug.py) los niveles se representarian de la siguiente manera:
   - **debug.INF**: INFORME
   - **debug.WAR**: ADVERTENCIA
@@ -626,12 +635,15 @@ Muchas herramientas esconden algunas funciones, que si no las mencionara acá, t
   - Tecla **LEFT** y **RIGHT**: Moverse entre comandos. El primero que esté a la izquierda de la lista horizontal, será el seleccionado
   - **<** y **>**: Cuando estemos en el formulario de **inicio de sesión** del **Jacob**, podremos usar alguna sesión almacenada y auto-rellenarse algunos datos
   - **CTRL-X** y **CTRL-T**: CTRL-X lo usamos para copiar al portapapeles toda la salida del buffer y CTRL-T para copiar la clave única
+  - **CTRL-A** y **CTRL-B**: **CTRL-A** selecciona todos los **rook's** y ejecuta el comando seleccionado para ahorrar tiempo, aunque hay algunos comandos que no se permiten ejecutar **dos** veces y **CTRL-B** para dejar de seleccionar todos los **Rook's**
+* [showSOS.py](showSOS.py): No he explicado qué és, pero lo poco que les puedo decir es para mostrar los mensajes públicos:
+  - Tecla **R**, **L** y **Q**: **R**, para desplazarte a la derecha, **L** para desplazarte a la izquierda y **Q** para salir
 
 ## Sistema Anti Fuerza bruta
 
-El sistema anti fuerza bruta de **Syndicate** es sencillo, primero tendremos que compreder que es el **Hash dinámico**, cosa que ya explique en las **aclaratorias**.
+El sistema anti fuerza bruta de **Syndicate** es sencillo, primero tendremos que comprender que es el **Hash dinámico**, cosa que ya explique en las **aclaratorias**.
 
-En **Syndicate** al crear un usuario además de la información de perfil, existen algunos datos de seguridad, cómo son los *Caracteres de seguridad*, *Número de seguridad*, *Número de disminución* e *Iteraciones*; Los cuales su funcionamiento principal es generar un Hash. El hash puede tener los mismos caracteres, pero si se introducén cualquier dato diferente al resto de los datos de seguridad el Hash será diferente.
+En **Syndicate** al crear un usuario además de la información de perfil, existen algunos datos de seguridad, cómo son los *Caracteres de seguridad*, *Número de seguridad*, *Número de disminución* e *Iteraciones*; Los cuales su funcionamiento principal es generar un Hash. El hash puede tener el mismo dato (**Como una contraseña**), pero si se introduce cualquier dato diferente al resto de los datos de seguridad el Hash será diferente.
 
 Mientras el proceso sea más lento, mejor en un buen sentido, *¿Por qué?*, simplemente porque si un **atacante** quiere hacer fuerza bruta al servidor, obligatoriamente tiene que tener: El usuario, Frase de contraseña, Los datos de seguridad, La clave pública del servidor, la clave privada y la clave única inclusive.
 
@@ -647,8 +659,9 @@ Sumando todo esto, también nos vemos que en la configuración *especificamente 
     - **forIP**: Bloquea a un usuario por dirección IP. Tiene sus pros y contras; entre sus pros puede ser que no es tan fastidioso, ya que si un atacante está bloqueado por dirección IP, nosotros (Los usuarios) podemos acceder cómo si no fuera pasado nada, pero entre sus contras, muy fácil de bypassear
     - **forRetry**: Bloquea a un usuario por el nombre en vez de la dirección IP. Es bueno porque así no se bypassea tan fácil, pero también nos bloquearía a nosotros.
 * honeypot:
-  - **user_agent_black_list**: Bloquea a un usuario por **Agente de usuario**
-  - **blacklist**: Bloquea por dirección IP
+  **Si un dato coincide con lo requerido, se ejecuta una de estas operaciones**
+  - **user_agent_black_list**: La lista para bloquear a un usuario por **Agente de usuario**
+  - **blacklist**: La lista para bloquear a un usuario por **Dirección IP**
   - **honeypot_list**: En vez de bloquear *¿Qué tal si usaramos una herramienta cuando haya un coincidencia?*; así es, por ejemplo podriamos usar **nmap**, cuando haya una coincidencia en la lista para escanear a ese usuario.
     *Necesitamos especificar las herramientas a usar en la clave **tools** *
     
@@ -661,8 +674,8 @@ De hecho trato de simular **Apache** en la información que se pueda obtener. Pu
 ## Plataformas
 
 * Lamentablemente sólo la probé en Kali linux, pero puede experimentar en otras plataformas.
-* Recomiendo que si usted va a probar Syndicate en Windows, use Cygwin o WSL, aunque no le garantizó nada.
-* En Android tecnicamente debería funcionar con Userland, aunque tmux no es mala elección.
+* Recomiendo que si usted va a probar Syndicate en Windows, use Cygwin o WSL, aunque no le garantizo nada.
+* En Android técnicamente debería funcionar con *Userland*, aunque *Tmux* no es mala elección.
 
 ## Instalación
 
@@ -681,7 +694,9 @@ Puede optar por una fácil instalación con PIP, pero hay algunos inconvenientes
 
 * En primer lugar, lo que si es necesario ejecutar es [requirements/requiremnts.txt](requirements/requirements.txt):
 
+```bash
 python3 -m pip install -r requirements/requirements.txt
+```
 
 ```
 PySocks==1.7.1
@@ -697,6 +712,10 @@ pyperclip==1.7.0
 ```
 
 Estos son los requerimientos para que funcione lo más principal de Syndicate, mientras que para los complementos se tendría que seguir los siguientes pasos, no obstante no es necesario instalar para las funcionalidades anteriormente mencionadas, esto sirve para aumentar el poder...
+
+```bash
+python3 -m pip install -r requirements/requirements.complements.txt
+```
 
 ```
 requests==2.22.0
@@ -732,7 +751,7 @@ Aquí les mostrare un listado de limitaciones, pero además de limitaciones, tam
 * [control.py](control.py) no puede leer correctamente caracteres especiales como la "**ñ**"
 * Los complementos requieren módulos de Python, por lo tanto la compilación varia dependiendo de ello.
 * Está en fase **beta**, por lo que puede tener errores, pero he trabajado mucho para que no los tenga
-* Compilarlo a un ejecutable puede hacer que "pese" mucho
+* Compilarlo a un ejecutable puede hacer que el peso sea considerable
 * Falta documentar muchas cosas
 * Sólo está probado en una distribución (**Kali Linux**), no se cómo actuaria en otra plataformas. Aunque el [Payload](payload.py) se ejecuta de igual forma tanto en **Linux** cómo en **Windows**
 * Al presionar CTRL-Z puede que dejen de funcionar algunas funciones en [evie.py](evie.py)
@@ -742,6 +761,7 @@ Aquí les mostrare un listado de limitaciones, pero además de limitaciones, tam
 * [jacob.py](jacob.py)
 * [rook.py](rook.py)
 * Herramientas del sistema
+* [recover.py](recover.py): **Recover** es una herramienta esencial para comunicarse con un **redirector** y es crucial para que funcione la **Red punto a punto**, por lo tanto también me falta explicar en profundidad la red.
 
 ## Capturas de pantalla
 
