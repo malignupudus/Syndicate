@@ -69,6 +69,10 @@ Tengo que explicar algunas cosas que iré mencionando poco a poco a lo largo de 
 
   La clave única cada vez que inicie sesión, cambiará, eso es para mantener aún más seguro la estructura.
 
+* [Jacob](jacob.py) y [Rook](rook.py): Quiero aclarar, a pesar de que la aplicación [payload.py](payload.py) es la que interectua con el servidor, no es más que una simple herramienta de pruebas, *el conejo debajo del sombrero* enrealidad es [rook.py](rook.py); mientras que para controlar a los **rook's** sería [control.py](control.py) en este caso es [jacob.py](jacob.py).
+
+  Hablare de ésto, en otra sección.
+
 **Notas**:
 
 * Tú, como administrador del servidor te debes encargar de repartir a personas de confianza el token de acceso, claro sí es qué desean usar los servicios públicos.
@@ -204,7 +208,7 @@ A pesar de que se muestre la configuración al finalizar, tal vez usted quiera a
 Ejecutamos [evie.py](evie.py) para iniciar el servidor:
 
 ```bash
-./evie.py -P <Frase de contraseña de la clave privada> $params
+ ./evie.py -P <Frase de contraseña de la clave privada> $params
 ```
 
 Sí ejecutamos por primera vez, verá algo así:
@@ -280,8 +284,8 @@ Ahora sí, ejecutemos el [Payload](payload.py)
 
 Explico poco a poco lo que siento que pueden tener dudas:
 
-* **-sleep-check**: Rook hace una petición a el/los servidor/es para verificar si algún **Jacob** propuso un comando en cola
-* **-db-path**: Los rook's tienen bases de datos que se almacenan en el directorio temporal del sistema operativo (**encriptada**, por supuesto), si no especificamos un nombre se genera de forma aleatoria y si ejecutamos otra vez el *payload* tendremos otra ruta aleatoria, por éso, es mejor especificarla. 
+* **-sleep-check**: Rook hace una petición a el/los servidor/es para verificar si algún **Jacob** propuso un comando en cola cada intervalo de segundo determinado
+* **-db-path**: Los rook's tienen bases de datos que se almacenan en el directorio temporal del sistema operativo (**encriptada**, por supuesto), si no especificamos un nombre se genera de forma aleatoria y si ejecutamos otra vez el *payload* tendremos otra ruta aleatoria, por éso, es mejor especificarla.
 * **-db-pass**: La frase de contraseña para cifrar la base de datos
 
 **Nota**: Puede usar el parámetro "**-no-verbose**" para que no imprima el resultado de alguna operación
@@ -290,13 +294,142 @@ Explico poco a poco lo que siento que pueden tener dudas:
 
 Necesitamos interactuar con el *Rook* para ello ejecutamos [control.py](control.py).
 
-Nos mostrara primero un panel de inicio de sesión, tenemos que rellenar los datos 
+```bash
+./control.py $params
+```
 
-**Nota**: Puede usar el parámetro "**-h, --help**" en la mayoria de herramientas para ver la ayuda.
+*Puedes observar en las **Las capturas de pantalla** cómo se vería*
+
+**Nota**: Quiero aclarar que la aplicación es una **DEMO**, no es para entornos reales, por lo tanto no te sorprendas si es igual de bonita que **Vim** ;).
+
+Nos mostrara primero un panel de inicio de sesión, tenemos que rellenar los datos deacuerdo a lo aprendido
+
+Al terminar de iniciar sesión lo primero que hará será enviar un comando "*ping*" para verificar si sus credenciales son correctas, luego enviara el comando "*listBots*" para obtener la lista de rook's que le pertenecen.
+
+Sí ocurre un error puede ser por los siguientes motivos:
+
+* No tiene privilegios para listar rook's o ejecutar *ping*
+* Ingresó una ruta incorrecta
+* El servidor lo está bloqueando
+* El servidor no existe
+* Ingresó datos incorrectos
+* Faltán **valores**
+* No existe la clave pública o la clave privada
+
+*Eso es sólo unos cuantos motivos por lo que no podrá iniciar sesión, recuerde tiene que ingresarlos exactamente cómo se creó; exceptuando a **iterations**, porque si usted coloca un número mayor al verdadero pero los demás datos son correctos, no habrá problemas.*
 
 ### Comandos
 
+En la segunda captura de pantalla en la sección **Capturas de Pantalla**, podemos observar varios *comandos* en la parte inferios, esta es su explicación:
+
+* **listBots**: Lista los **rook's** disponibles en el buffer
+* **getData**: Muestra los datos de un **rook**
+* **getCommands**: Obtiene los comandos que serán ejecutados en la consola del sistema operativo
+* **shareBot**: Comparte un **rook** a un **evie**
+* **listServers**: Lista los servidores secundarios del **rook** seleccionado que son los servidores a los cuales lo compartimos
+* **delServer**: Borra un servidor secundario
+* **getToken**: Obtiene el token de acceso público
+* **writeNodes**: Crear los nodos para interactuar con otro **Evie**
+* **addNode**: Agregar un nuevo nodo a la red
+* **getNodes**: Obtiene todos los nodos de un identificador especifico o puede usar '**all**' para mostrar todos
+* **useNodes**: De todos los identificadores de los nodos tenemos que seleccionar uno y partir de aquí podremos usar la red para interactuar con un **Evie**
+* **updateNode**: Actualiza la información de un nodo. **Si es el nodo final** sólo puede actualizar la dirección URL
+* **access_list**: Muestra una lista de todas las veces que el **Jacob** que se este usando ha iniciado sesión
+* **ping**: Mandas *ping*, recibes *pong*
+* **noUseNodes**: Sí estás usando una red, puedes dejar de usarla con este comando
+* **updateListBots**: Actualiza la lista de **rook's**
+* **listFiles**: Muestra los archivos del **rook** que esten almacenados en **Evie**
+* **download**: Descarga un archivo del **rook** que este almacenado en **Evie**
+* **upload**: Subé un archivo a **Evie**
+* **getPeers**: Obtiene la lista de **Puntos** en la red, con su respectiva información.
+  **Los puntos serián son enrealidad los "*redirectors*"**
+* **sharedFiles**: Obtiene los archivos que hemos subido
+* **addQueue**: Manda un comando a la cola de comandos del **rook** usando el meta-lenguaje **Sumerio**. **Ya explicaré que es ésto**
+
+### Meta-lenguaje *Sumerio*
+
+Sumerio es un meta-lenguaje que se utiliza en algunas partes del proyecto **Syndicate**, para que pueda actuar cómo una interfaz sencilla de usar, entre **Python** y usted el **usuario**. Acontinuación explicaré su usó:
+
+```
+;e;<clave>=<tipo de dato>:<valor>
+```
+
+* **;e;**: Se le llama **etiqueta**, sólo debe ser un carácter y debe estar encerrado con un punto y coma.
+* **<clave>**: La clave no tiene mucha ciencia, es un diccionario siempre debe estar seguida de una clave y un valor
+* **<tipo de dato>**: Debemos conocer algunos tipos de datos en Python que son usados en Syndicate.
+  - str: String o un texto simple
+  - int: Cuando queremos que sea un número
+  - bool: Booleano, **True** en Sumerio es cualquier dato menos **0** o ningún dato
+  - file: Abré un archivo
+  - yaml o json: Abré un archivo que este codificado en json o yaml y lo parsea.
+  *Tenga en cuenta que se usa yaml seguro, algunas sentencias no se podrán leer. Cómo las tuplas de Python*
+  - null: No es un tipo de dato, pero sirve para dar cómo resultado "None"
+  - list o tuple: Una lista o una tupla, actuan de la misma forma, pero en el caso de la tupla genera una, a partir de una lista.
+
+**Nota**: En el caso de usar una lista o una tupla necesitamos especificar el separador y el tipo de dato de cada dato de la siguiente manera:
+
+Sumerio:
+
+```
+;j;<clave>=<list o tuple>:,<tipo de dato>:<valor>
+```
+
+**Nota**: Pueden notar que use una **j** cómo separador, pero pueden usar cualquier carácter que no sea una nueva línea (**\n**)
+
+*Un ejemplo sería mostrar la lista de compras, mostrando cada producto y cuanto compraremos de él*
+
+Ejemplo:
+
+```
+;c;compras=list:,tuple:.str:pescado.int:3,tuple:-str:patilla-int:10
+```
+
+El resultado en Python sería:
+
+```python
+{'compras': [('pescado', 3), ('patilla', 10)]}
+```
+
+Ejemplo realista:
+
+Es mejor si usamos un ejemplo más serio, cómo por ejemplo configurar la lista de proxy's que usara **Evie** o Usar algún complemento de **Syndicate** que necesite parámetros:
+
+Ejemplo de configuración de un proxy. *En mi caso configuraré Tor y un proxy que salio de un sitio cualquiera*
+
+```
+;a;proxy=list:,dict:;p;proxy_type=str:SOCKS4;p;proxy_addr=str:127.0.0.1;p;proxy_port=int:9050;p;rds=bool:1;p;username=null;p;password=null,dict:;e;proxy_type=str:HTTP;e;proxy_addr=str:194.143.151.96;e;proxy_port=int:36639;e;rds=bool:1;e;username=null;e;password=null
+```
+
+En la salida de Python:
+
+```python
+{'proxy': [{'proxy_type': 'SOCKS4', 'proxy_addr': '127.0.0.1', 'proxy_port': 9050, 'rds': True, 'username': None, 'password': None}, {'proxy_type': 'HTTP', 'proxy_addr': '194.143.151.96', 'proxy_port': 36639, 'rds': True, 'username': None, 'password': None}]}```
+
+*¿Sencillo no? :'v*
+
+Algo así tenemos que hacer en la [Configuración](auto-config.sh) de los proxy's para usarlo en [Evie](evie.py).
+
+Ahora otro ejemplo:
+
+```
+;a;name=str:erica;a;function=str:Crack;a;params=dict:;b;password_hash=str:0de8e6b341ad870ed79bc7da420df763;b;wordlist=json:/tmp/wordlist.lst;b;hash_func=str:md5
+```
+
+En la salida:
+
+```python
+{'name': 'erica', 'function': 'Crack', 'params': {'password_hash': '0de8e6b341ad870ed79bc7da420df763', 'wordlist': ['123', 'dtxdf', 'passtohash', 'hashtopass', 'soy_una_contraseña'], 'hash_func': 'md5'}}
+```
+
+En este caso uso el complemento **erica** para "crackear" el hash "**0de8e6b341ad870ed79bc7da420df763**" usando una lista de contraseñas en formato **JSON** que se encuentra en "**/tmp/wordlist.lst**".
+
+### Privilegios
+
+**Nota**: Puede usar el parámetro "**-h, --help**" en la mayoria de herramientas para ver la ayuda.
+
 ## Complementos
+
+Los complementos son una parte escencial de **Syndicate**, amplia la capacidad de funciones.
 
 ### Complementos implementados por defecto:
 
@@ -305,16 +438,16 @@ Actualmente solo están estos complementos:
 1. microrecord: Graba el micrófono
 2. inject: Inyecta **shellcode** o un **ejecutable** en un proceso (Válido sólo para **Windows**)
 5. keylogger: Registra las pulsaciones del teclado
-7. usbDumper: Puede copiar todos los archivos y directorios que tengan los permisos de lectura correspondientes
-8. screenshot: Tomá una captura de pantalla a todas las pantallas disponibles
-9. websnap: Tomá una captura a la webcam
-10. symplix: Cifra los archivos, algo así como un ransomware, pero sin mostrar el mensaje
+7. usbDumper: Puede copiar todos los archivos y directorios que tengan los permisos de lectura correspondientes en una unidad USB, aunque también se podría usar para copiar datos en una carpeta.
+8. screenshot: Tomá una captura de pantalla a todos los monitores disponibles
+9. websnap: Tomá una fotografia usando la webcam
+10. symplix: Cifra los archivos, algo así como un ransomware, pero sin mostrar el mensaje de rescate
 11. hjclipboard: Copia o pega algún texto en el portapapeles
 12. hulk: Hace un ataque de denegación de servicios (DoS)
 13. GeoIP: Geolocaliza la dirección IP (**Requiere conexión a Internet**)
 14. erica: Usa los recursos de la victima para tratar de crackear una Suma de verificación (Hash)
 
-**ADVERTENCIA**: **Hulk** está modificado para que actue de manera destructiva y puede agotar los recursos de nuestro dispositivo, por favor hagalo bajo su propia responsabilidad y criterio.
+**ADVERTENCIA**: **Hulk** está modificado para que actue de manera destructiva y puede agotar los recursos de nuestro dispositivo, por favor hagalo bajo su propia responsabilidad y criterio. Sí va a hacer alguna prueba por favor disminuya los niveles de procesos, hilos e iteraciones en los parámetros.
 
 *Puede ver la ayuda de cada complemento ejecutando: ./evie.py -\<nombre del modulo\>-help*
 
@@ -325,8 +458,8 @@ Para crear un complemento se necesita saber algunas cosas, cómo la jerarquia de
 ```
 complemento/
 ├── evie
-│   ├── init.py
-│   └── params.py
+│   ├── init.py
+│   └── params.py
 └── rook
     └── src
         └── init.py
@@ -369,6 +502,8 @@ Para crear un **conector** para Evie, debe tener obligatoriamente la función **
 * Los complementos se encuentran en [complements/tools](complements/tools)
 
 ## Funciones ocultas
+
+## Sistema Anti Fuerza bruta
 
 ## Plataformas
 
@@ -448,7 +583,7 @@ Aquí les mostrare un listado de limitaciones, pero además de limitaciones, tam
 * Falta documentar muchas cosas
 * Sólo está probado en una distribución (**Kali Linux**), no se cómo actuaria en otra plataformas. Aunque el [Payload](payload.py) se ejecuta de igual forma tanto en **Linux** cómo en **Windows**
 
-# No documentado
+## No documentado
 
 ## Capturas de pantalla
 
