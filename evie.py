@@ -628,30 +628,46 @@ def get_info():
 
             if (init == True):
 
-                key = ''.join(key)
+                try:
 
-                if (key == '\n'): # ENTER
+                    key = ''.join(key).lower()
 
-                    logger.log('Escuchando en :: %s://%s:%d/%s' % (proto, LHOST, LPORT, RPATH), PER)
+                except:
 
-                elif (key == '\x12'): # CTRL-R
+                    break
 
-                    logger.log('Total de peticiones hechas: %d' % (request_count))
-
-                elif (key == '\x0e'): # CTRL-N
-
-                    logger.log('GET:%d ~ POST:%d ~ HEAD:%d ~ AUTH:%d ~ Address:(BLOCK:%d) ~ User-Agent:(BLOCK:%d)' % (
-                                                                            request_count_safe.get('GET'),
-                                                                            request_count_safe.get('POST'),
-                                                                            request_count_safe.get('HEAD'),
-                                                                            request_count_safe.get('AUTH'),
-                                                                            request_count_safe.get('address_BLOCK'),
-                                                                            request_count_safe.get('user_agent_BLOCK')
-                                                                            
-                                                                        ))
                 else:
 
-                    logger.log('{} es una tecla inválida, presiona otra vez...'.format(repr(key)), COM)
+                    if (key == '\n'): # ENTER
+
+                        logger.log('Escuchando en :: %s://%s:%d/%s' % (proto, LHOST, LPORT, RPATH), PER)
+
+                    elif (key == 'p'):
+
+                        logger.log('Total de peticiones hechas: %d' % (request_count), PER)
+
+                    elif (key == 'n'):
+
+                        logger.log('GET:%d ~ POST:%d ~ HEAD:%d ~ AUTH:%d ~ Address:(BLOCK:%d) ~ User-Agent:(BLOCK:%d)' % (
+                                                                                request_count_safe.get('GET'),
+                                                                                request_count_safe.get('POST'),
+                                                                                request_count_safe.get('HEAD'),
+                                                                                request_count_safe.get('AUTH'),
+                                                                                request_count_safe.get('address_BLOCK'),
+                                                                                request_count_safe.get('user_agent_BLOCK')
+                                                                                
+                                                                            ))
+                    elif (key == 't'):
+
+                        logger.log('Token de acceso -> {}'.format(token), PER)
+
+                    elif (key == 's'):
+
+                        logger.log('Clave secreta -> {}'.format(secret_key))
+
+                    else:
+
+                        logger.log('{} es una tecla inválida, presiona otra vez...'.format(repr(key)), COM)
 
 
 loop_config(True) # Ajustamos los valores de forma sincronizada
@@ -1225,8 +1241,8 @@ else:
 
     httpd.shutdown()
 
+logger.log('Saliendo ...', debug.INF)
+
 if (get_os_name == 'posix'):
 
     reset_term.reset()
-
-logger.log('Saliendo ...', debug.INF)
