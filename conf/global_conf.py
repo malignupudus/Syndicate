@@ -138,15 +138,18 @@ privileges = {
                 'getToken'      :   'Obtener el token de acceso público',
                 'listServers'   :   'Lista los servidores secundarios',
                 'delServer'     :   'Borrar un servidor secundario',
-                'addNodes'      :   'Agregar nodos',
+                'addNode'       :   'Agregar nodos',
                 'delNodes'      :   'Borrar nodos',
                 'getNodes'      :   'Obtener nodos',
-                'useNodos'      :   'Usar un conjunto de nodos',
+                'useNodes'      :   'Usar un conjunto de nodos',
                 'updateNode'    :   'Actualiza la información de un nodo',
                 'access_list'   :   'Lista los últimos inicios de sesión exitosos',
                 'ping'          :   'Verifica si las credenciales son correctas',
                 'getPeers'      :   'Obtiene los puntos en la red',
                 'download'      :   'Descarga un archivo de un rook',
                 'upload'        :   'Sube un archivo a Evie',
-                'listFiles'     :   'Listar los archivos de un bot'
+                'listFiles'     :   'Listar los archivos de un bot',
+                'addQueue'      :   'Agregar comandos a la cola',
+                'sharedFiles'   :   'Ver los archivos que suben los Jacob\'s',
+                'writeNodes'    :   'Escribir nodos'
             }

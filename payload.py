@@ -22,6 +22,10 @@ password = None
 headers = None
 bot_id = None
 
+# Métodos que no están permitidos:
+
+no_execute = ['__init__', 'setServerCredentials', 'setCredentials', 'send', '_bot__sendData', 'setDirector']
+
 # Init UTILS
 
 def printI(string):
@@ -40,7 +44,7 @@ def execute_init(instance, function, value):
 
     except Exception as Except:
 
-        instance.send((pattern_key_save + 'error_' + function), str(Except))
+        instance.send((pattern_key_save + 'error_' + function, str(Except)))
 
     else:
 
@@ -83,7 +87,7 @@ def loop(rook_instance, sleep_check):
 
                         if (hasattr(rook_instance, key) == True):
 
-                            if not (key == '__init__'):
+                            if not (key in no_execute):
 
                                 try:
 
@@ -91,7 +95,8 @@ def loop(rook_instance, sleep_check):
 
                                         printI('SUCCESS: Ejecutando: "{}"'.format(key))
 
-                                        thread = threading.Thread(target=execute_init, args=(rook_instance, key, value))
+                                        thread = threading.Thread(target=execute_init, args=(rook_instance, key, value if not (key == 'addserver') else {})) # Evitar que agrguen otros servidores secundarios
+                                        thread.setDaemon(True)
                                         thread.start()
 
                                     else:
@@ -104,7 +109,7 @@ def loop(rook_instance, sleep_check):
 
                             else:
 
-                                rook_instance.send((pattern_key_save + key, printI('WARNING: ¡No se puede ejecutar esta función!')))
+                                rook_instance.send((pattern_key_save + key, printI('WARNING: ¡No se puede ejecutar este método!')))
 
                         else:
 

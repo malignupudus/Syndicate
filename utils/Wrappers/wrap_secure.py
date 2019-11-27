@@ -2,7 +2,15 @@ import shelve
 from utils.Ciphers import simplycrypt
 from hashlib import sha512
 
+def __create(path):
+
+    with shelve.open(path):
+
+        pass
+
 def add(key, value, password, path):
+
+    __create(path)
 
     try:
 
@@ -22,6 +30,8 @@ def add(key, value, password, path):
         return(True)
 
 def read(key, password, path):
+
+    __create(path)
 
     try:
 

@@ -23,6 +23,7 @@ from binascii import unhexlify
 
 from modules.UI import argprogrammer
 
+from utils.sys_utils import set_proxy; set_proxy.autoconf()
 from utils.Checks import check_url
 from utils.Executes import execute_command
 from utils.Ciphers import simplycrypt
@@ -86,8 +87,9 @@ default_iterations = global_conf.hashing['iterations']
 default_security_number = global_conf.hashing['security_number']
 default_decrement_number = global_conf.hashing['decrement_number']
 
-group_access = 'Identificación'
 group_login = 'Inicio de Sesión'
+group_access = 'Identificación'
+group_stack_commands = 'Comandos'
 group_secundary_server = 'Servidor secundario'
 
 parser = argprogrammer.Parser()
@@ -114,6 +116,8 @@ parser.add(['-P', '--password'], 'password', help='Contraseña', require=True, g
 parser.add(['-add-secundary-server'] , 'add_secundary_server', help='Agregar un servidor secundario', group=group_secundary_server)
 parser.add(['-pub-key'], 'pub_key', help='La clave pública del servidor secundario', group=group_secundary_server)
 
+parser.add(['-add-queue'], 'add_queue', 'Agrega un comando en la cola ', group=group_stack_commands)
+
 parser.add(['-H', '--hash'], 'hash', help='El identificador del director, para verificar que sea la entidad correspondiente', require=True)
 parser.add(['-headers'], 'headers', help='Los encabezados a usar. Sintaxis: key=value&key2=value2', type=dict)
 
@@ -121,9 +125,9 @@ args = parser.parse_args()
 
 url = args.url
 chars = args.chars
-iterations = str(args.iterations)
-security_number = str(args.security_number)
-decrement_number = str(args.decrement_number)
+iterations = args.iterations
+security_number = args.security_number
+decrement_number = args.decrement_number
 bot_id = args.bot_id
 passphrase = args.passphrase
 username = args.username
@@ -133,6 +137,7 @@ add_secundary_server = args.add_secundary_server
 pub_key = args.pub_key
 hash_ = args.hash
 headers = args.headers
+add_queue = args.add_queue
 
 try:
 
@@ -168,27 +173,44 @@ try:
 
     _data = {'chars':chars, 'iterations':iterations, 'security_number':security_number, 'decrement_number':decrement_number, 'passphrase':passphrase, 'id':bot_id, 'data':None, 'command':[username, password, None]}
 
-    if not (add_secundary_server == None) and not (pub_key == None):
+    if not (add_secundary_server == None):
 
-        if not (isfile(pub_key) == True):
+        if (pub_key == None):
 
-            verbose('La clave pública no existe ...')
-            sys.exit(1)
+            verbose('¡Debes definir la clave pública del servidor secundario!')
 
         else:
 
-            with open(pub_key, 'rt') as _obj:
+            if not (isfile(pub_key) == True):
 
-                pub_key = _obj.read().rstrip()
+                verbose('La clave pública no existe ...')
+                sys.exit(1)
 
-        _data['command'][2] = 'add_secundary_server'
-        _data['data'] = [add_secundary_server, pub_key]
+            else:
+
+                with open(pub_key, 'rt') as _obj:
+
+                    pub_key = _obj.read().rstrip()
+
+            _data['command'][2] = 'add_secundary_server'
+            _data['data'] = [add_secundary_server, pub_key]
+
+            _response = requests.post(url, data=simplycrypt.encrypt(password, _data), verify=False, timeout=global_conf.connector['timeout'], headers=headers)
+
+            _detect_status_code(_response.status_code)
+
+            verbose('Correcto, se agrego el servidor secundario: "%s"' % (add_secundary_server))
+
+    if not (add_queue == None):
+
+        _data['command'][2] = 'addQueue'
+        _data['data'] = add_queue
 
         _response = requests.post(url, data=simplycrypt.encrypt(password, _data), verify=False, timeout=global_conf.connector['timeout'], headers=headers)
 
         _detect_status_code(_response.status_code)
 
-        verbose('Correcto, se agrego el servidor secundario: "%s"' % (add_secundary_server))
+        verbose('Correcto, se agrego el comando: "{}"'.format(add_queue))
 
     else:
 

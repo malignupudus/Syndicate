@@ -38,16 +38,12 @@ from modules.Connections import portforwardlib
 
 from conf import global_conf
 
-class CommunicationError(Exception):"""
-Error comuncandose con el servidor!
-"""
-
-class InvalidCredentials(Exception):"""
-Cuando las credenciales introducidas son invalidas!
-"""
-
 class InvalidPath(Exception):"""
 Error en el path remoto del servicio
+"""
+
+class serverDirectorIsInit(Exception):"""
+Cuando el servidor ya está iniciado
 """
 
 disable_warnings()
@@ -99,10 +95,15 @@ class HTTPServerHandler(BaseHTTPRequestHandler):
             while not self.close_connection:
                 self.handle_one_request()
 
-        except:
+        except BrokenPipeError:
 
-            #DEBUG
-            #raise
+            pass
+
+        except ConnectionResetError:
+
+            pass
+
+        except:
 
             self._error500()
 
@@ -212,24 +213,47 @@ class HTTPServerHandler(BaseHTTPRequestHandler):
 
             if (len(_request) == 8):
 
-                for _ in ['command', 'chars', 'iterations', 'security_number', 'decrement_number', 'passphrase', 'id']:
+                for _ in [
+                            ('command', list),
+                            ('chars', str),
+                            ('iterations', int),
+                            ('security_number', int),
+                            ('decrement_number', int),
+                            ('passphrase', str),
+                            ('id', str)]:
 
-                    if (_request.get(_) == None):
+                    _cmp_result = key_check_in_dict.check(_request, _[0])
+
+                    if (_cmp_result == False):
 
                         self._error400()
                         return
 
-                if not (len(_request['command']) == 3):
+                    else:
+
+                        if not (isinstance(_request.get(_[0]), _[1]) == True):
+
+                            self._error400()
+                            return
+
+                if (len(_request['command']) != 3):
 
                     self._error400()
                     return
+
+                else:
+
+                    (username, passphrase, command) = _request['command']
+
+                    if not (isinstance(username, str) == True) or not (isinstance(passphrase, str) == True) or not (isinstance(command, str) == True):
+
+                        self._error400()
+                        return
 
         else:
 
             self._error400()
             return
-
-        (username, passphrase, command) = _request['command']
 
         command = str(command).lower()
 
@@ -267,6 +291,14 @@ class HTTPServerHandler(BaseHTTPRequestHandler):
                     self._found200()
                 else:
                     self._error500()
+
+            elif (command == 'addqueue'):
+
+                self._write_db('queue_%s' % (_key), str(_data))
+
+            elif (command == 'getqueue'):
+
+                self._read_db('queue_%s' % (_key))
 
             else:
 
@@ -319,7 +351,9 @@ class bot(object):
         sleep = int(sleep)
         self.sleep = sleep*-1 if ('-' in str(sleep)) else sleep
 
-        self.heades = None
+        self.headers = None
+
+        self.__directorInit = False
 
     def setServerCredentials(self, pub_key):
 
@@ -363,6 +397,10 @@ class bot(object):
         self.decrement_number = int(decrement_number)  #
         ################################################
 
+    def getPeerQueue(self):
+
+        return(self.sendDirector(None, 'getQueue'))
+
     def getPeers(self):
 
         result = self.send(('getPeers', None))
@@ -402,7 +440,15 @@ class bot(object):
 
         return(wrap_secure.read('hash', self.db_pass, self.db_path))
 
-    def directorServer(self, username, passphrase, addr=None, pub_addr=False, lport=16666):
+    def directorServer(self, username, passphrase, addr=None, pub_addr=False, lport=16666, sys_version='', server_version=''):
+
+        if (self.__directorInit == True):
+
+            raise serverDirectorIsInit('El servidor ya está iniciado')
+
+        self.__directorInit = True
+        BaseHTTPRequestHandler.sys_version = str(sys_version)
+        BaseHTTPRequestHandler.server_version = str(server_version)
 
         _address = self.__get_my_addr(addr, pub_addr)
 
@@ -430,13 +476,10 @@ class bot(object):
 
             httpd.serve_forever()
 
-        except KeyboardInterrupt:
-
-            raise
-
         finally:
 
             httpd.shutdown()
+            self.__directorInit = False
 
     def setDirector(self, address, port, username, passphrase, db_passwd, identifier, proto='http'):
 
