@@ -5,6 +5,7 @@ Tratare de englobar todas las caracteristicas posibles de Syndicate, espero no m
 
 ## Caracteristicas
 
+* Mutiples conexiones a la vez
 * Cifrado hibrido en las conexiones. Usando AES256 y RSA a nuestro favor podremos cifrar nuestras comunicaciones oficiales entre Evie's (**Ŝervidor**), Jacob's (**Ciente-Administrador** de los **Rook's**) y Rook's (**Cliente-bot**).
 * Cifrado simétrico en las bases de datos, tanto de **Evie**, como la de los **rook's**. Aunque en los accesos públicos también se usá el mismo esquema.
 * Red punto a punto. La red de los Rook's, no es igual a la de los Evie's, aunque puede haber comunicación entre ellas.
@@ -611,7 +612,20 @@ def Crack(password_hash, wordlist, hash_func):
 
 Muchas herramientas esconden algunas funciones, que si no las mencionara acá, tendrias que leer el código fuente. Aquí un listado:
 
-* [evie.py](evie.py):
+* [evie.py](evie.py): Evie esconde algunas funcionalidades que nos ayudarian en muchos casos:
+  - Tecla **ENTER**: Muestra la dirección URL que se está usando actualmente
+  - Tecla **T**: Muestra el token de acceso público
+  - Tecla **S**: Muestra la clave secreta
+  - Tecla **N**: Muestra el total de peticiones *GET*, *POST*, *HEAD*, *AUTH* y los Bloqueos por *Agente de usuario* y *Dirección IP*
+  - Tecla **P**: Muestra el total de peticiones
+* Cuando se muestre el formulario en caso de que no usé parámetros estas son sus funcionalidades:
+  - **CTRL-H**: Oculta sí no estaba oculta y viceversa por un asterisco
+  - **CTRL-D**: Borra todo el contenido escrito (**Esto también sucede con [control.py](control.py)**)
+* [control.py](control.py): En anteriores secciones les dije «*seleccionamos el rook*», pero no les dije cómo:
+  - Tecla **T** y **B**: El **rook** selecionado será el primero en la lista. Puedes usar **T** para bajar y **B** para subir
+  - Tecla **LEFT** y **RIGHT**: Moverse entre comandos. El primero que esté a la izquierda de la lista horizontal, será el seleccionado
+  - **<** y **>**: Cuando estemos en el formulario de **inicio de sesión** del **Jacob**, podremos usar alguna sesión almacenada y auto-rellenarse algunos datos
+  - **CTRL-X** y **CTRL-T**: CTRL-X lo usamos para copiar al portapapeles toda la salida del buffer y CTRL-T para copiar la clave única
 
 ## Sistema Anti Fuerza bruta
 
@@ -724,6 +738,10 @@ Aquí les mostrare un listado de limitaciones, pero además de limitaciones, tam
 * Al presionar CTRL-Z puede que dejen de funcionar algunas funciones en [evie.py](evie.py)
 
 ## No documentado
+
+* [jacob.py](jacob.py)
+* [rook.py](rook.py)
+* Herramientas del sistema
 
 ## Capturas de pantalla
 
