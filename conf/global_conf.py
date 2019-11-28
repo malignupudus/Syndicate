@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 import socks
+from os import makedirs
 
 databases = {
 
@@ -20,7 +21,8 @@ databases = {
                 'session'           :   'credentials/session.evd',
                 'preserved'         :   'preserved',
                 'complements'       :   'complements/tools',
-                'output'            :   'output'
+                'output'            :   'output',
+                'defend_logs'       :   'defend/logs'
         
         }
 

@@ -10,13 +10,15 @@ from utils.sys_utils import convert
 from utils.sys_utils import my_addr, my_public_addr
 from utils.Wrappers import wrap
 
+from conf import global_conf
+
 with shelve.open(wrap.getDB(wrap.USE_DEFEND), flag='n'):
 
     pass
 
 def output_func(string, name):
 
-    open("defend/logs/%s" % (name), 'a').write(str(string))
+    open("%s/%s" % (global_conf.databases['defend_logs'], name), 'a').write(str(string))
     print(str(string), end='')
 
 def defend(command, address, bhost, bport, log):

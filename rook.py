@@ -358,10 +358,10 @@ class bot(object):
         #################################
 
         #Manejador de la base de datos local
-        #################################################
-        self.db_path = '%s/%s' % (gettempdir(), db_path)# La ruta de la base de datos
-        self.db_pass = db_pass                          # La contraseña para desencriptar la base de datos
-        #################################################
+        ####################################################################
+        self.db_path = '%s/%s' % (gettempdir(), os.path.basename(db_path)) # La ruta de la base de datos
+        self.db_pass = db_pass                                             # La contraseña para desencriptar la base de datos
+        ####################################################################
 
         self.directors = []
         ##################### ADDR  PUB_ADDR  DEFAULT_LPORT

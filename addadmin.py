@@ -40,7 +40,7 @@ from modules.UI import iInput
 
 from conf import global_conf
 
-cuenta = 0
+cuenta = 1
 
 rsa = POO_RSA.main()
 
@@ -163,11 +163,14 @@ if (show == True):
 
             for key, value in credentials.items():
 
-                cuenta += 1
-
                 tmp_bots = enum_bots.enum(key, False)
 
-                if (len(tmp_bots) == 0):
+                if (tmp_bots == -1):
+
+                    print('Ocurrio un error, parece que el administrador "{}" no existe o no se pudo leer el almacén...'.format(key))
+                    continue
+
+                if (tmp_bots == []):
 
                     _formated_bots = 'No está encargado de ningún bot ...'
 
@@ -222,6 +225,8 @@ if (show == True):
                 print('\t' + '- \033[1;34mNúmero de disminución\033[0m: \033[37m%s\033[0m' % (value['decrementNumber']))
                 print('\t' + '- \033[1;34mCaracteres de seguridad\033[0m: \033[37m%s\033[0m' % (value['security_chars']))
                 print('\n')
+
+                cuenta += 1
 
 else:
 
