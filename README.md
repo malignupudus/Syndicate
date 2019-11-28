@@ -359,8 +359,8 @@ Sumerio es un meta-lenguaje que se utiliza en algunas partes del proyecto **Synd
 ```
 
 * **;e;**: Se le llama **etiqueta**, sólo debe ser un carácter y debe estar encerrado con un punto y coma.
-* **<clave>**: La clave no tiene mucha ciencia, es un diccionario siempre debe estar seguida de una clave y un valor
-* **<tipo de dato>**: Debemos conocer algunos tipos de datos en Python que son usados en Syndicate.
+* **\<clave\>**: La clave no tiene mucha ciencia, es un diccionario siempre debe estar seguida de una clave y un valor
+* **\<tipo de dato\>**: Debemos conocer algunos tipos de datos en Python que son usados en Syndicate.
   - str: String o un texto simple
   - int: Cuando queremos que sea un número
   - bool: Booleano, **True** en Sumerio es cualquier dato menos **0** o ningún dato
