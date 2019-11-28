@@ -693,7 +693,7 @@ Y luego instalamos los...
 
 Puede optar por una fácil instalación con PIP, pero hay algunos inconvenientes que dependen de usted.
 
-* En primer lugar, lo que si es necesario ejecutar es [requirements/requiremnts.txt](requirements/requirements.txt):
+* En primer lugar, lo que si es necesario ejecutar es [requirements/requirements.txt](requirements/requirements.txt):
 
 ```bash
 python3 -m pip install -r requirements/requirements.txt
@@ -791,5 +791,6 @@ Aquí les mostrare un listado de limitaciones, pero además de limitaciones, tam
 
 * [Kirari-Senpai](https://github.com/Kirari-Senpai): Gracias a tí, si estás leyendo ésto. Tú me ayudaste mucho con los complementos antes de que me surgiera la idea, es admirable que alguien dedique parte de su tiempo a escribir código a alguien que apenas sabe su nombre, pero mucho más a alguien que seguira aportando a este proyecto. Muchas gracias Kirari.
 * [n1nj4sec](https://github.com/n1nj4sec): Gracias por aportar a la comunidad con su proyecto [pupy-rat](https://github.com/n1nj4sec/pupy), gracias a él, muchos complementos de **Syndicate** existen.
+* [jfdelgad](https://github.com/jfdelgad): Creador de [port-forward](https://github.com/jfdelgad/port-forward), una pequeña pero poderasa libreria para hacer desastres con el router usando UPnP :D. Gracias por compartirlo y por dar vida a una caracteristica especial de los **rook's**
 
 *Sí hay alguien que me falta, comunicame inmediantamente*
