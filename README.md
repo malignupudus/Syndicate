@@ -126,7 +126,7 @@ Se guardo satisfactoriamente en -> conf/pass
 echo $HISTCONTROL
 ignoreboth
 # ¡Bien!, esa es la regla perfecta.
-# Eso nos servirá cuando para cuando introducimos un comando y no queramos que se guarde en el historial, ya que la idea es que no se registre una contraseña o algo sensible.
+# Eso nos servirá para cuando introducimos un comando y no queramos que se guarde en el historial, ya que la idea es que no se registre una contraseña o algo sensible.
 # Así que ahora guardemos lo que necesitamos en una variable
  declare -x params='-db-passphrase <La frase de contraseña> -db-iterations <Iteraciones> -db-chars <Caracteres de Seguridad> -db-decrement-number <Número de disminución> -db-security-number <Número de seguridad>'
 # Cómo pueden notar, usé un espacio antes de escribir el comando, para que no se almacene en el historial.
