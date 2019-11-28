@@ -260,7 +260,7 @@ Hacemos el mismo procedimiento, pero esta vez será para la **Clave Privada del 
  ./addbot.py -show -option keys -P <identificador del rook>:<Frase de contraseña para desencriptarla> $params
 ```
 
-**Nota**: Puede asignarle permisos de escritutra y lectura dependiendo de su usuario al par de claves *para mayor seguridad*.
+**Nota**: Puede asignarle permisos de escritura y lectura dependiendo de su usuario al par de claves *para mayor seguridad*.
 
 **Recordatorio**: *Cómo ve, deje un espacio para que no se guarde el comando en el historial*
 
