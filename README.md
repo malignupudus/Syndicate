@@ -260,7 +260,7 @@ Hacemos el mismo procedimiento, pero esta vez será para la **Clave Privada del 
  ./addbot.py -show -option keys -P <identificador del rook>:<Frase de contraseña para desencriptarla> $params
 ```
 
-**Nota**: Puede asignarle permisos de escritutra y lectura dependiendo de su usuario al par de claves *para mayor seguridad*.
+**Nota**: Puede asignarle permisos de escritura y lectura dependiendo de su usuario al par de claves *para mayor seguridad*.
 
 **Recordatorio**: *Cómo ve, deje un espacio para que no se guarde el comando en el historial*
 
@@ -633,6 +633,9 @@ Muchas herramientas esconden algunas funciones, que si no las mencionara acá, t
 * [control.py](control.py): En anteriores secciones les dije «*seleccionamos el rook*», pero no les dije cómo:
   - Tecla **T** y **B**: El **rook** selecionado será el primero en la lista. Puedes usar **T** para bajar y **B** para subir
   - Tecla **LEFT** y **RIGHT**: Moverse entre comandos. El primero que esté a la izquierda de la lista horizontal, será el seleccionado
+  - Tecla **TOP** y **DOWN**: Mueve el buffer arriba (**TOP**) o abajo (**DOWN**)
+  - **CTRL-R** y **CTRL-L**: Mueve el buffer a la derecha (**CTRL-R**) o a la izquierda (**CTRL-L**)
+  - Tecla **R** y **L**: Mueve el buffer de la lista de **Rook's**
   - **<** y **>**: Cuando estemos en el formulario de **inicio de sesión** del **Jacob**, podremos usar alguna sesión almacenada y auto-rellenarse algunos datos
   - **CTRL-X** y **CTRL-T**: CTRL-X lo usamos para copiar al portapapeles toda la salida del buffer y CTRL-T para copiar la clave única
   - **CTRL-A** y **CTRL-B**: **CTRL-A** selecciona todos los **rook's** y ejecuta el comando seleccionado para ahorrar tiempo, aunque hay algunos comandos que no se permiten ejecutar **dos** veces y **CTRL-B** para dejar de seleccionar todos los **Rook's**
