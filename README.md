@@ -12,7 +12,7 @@ Tratare de englobar todas las caracteristicas posibles de Syndicate, espero no m
 * Multi-usuario. El administrador del servidor se encarga de crear tanto usuarios Jacob's cómo Rook's con sus respectivos privilegios.
 * Compartir Rook's entre Evie's.
 * Comunicación por nodos o lo que quiere decir, que creando una red entre Evie's puede hacer pasar cada paquete a una dirección o podría decirse nodos intermedios hasta llegar a un punto final o nodo final (**Que vendría siendo otro Evie**). La red está diseñada para que no se pueda saber que dirección envío qué y dónde, exceptuando algunas cosas qué ya explicaré después y además se tiene que configurar toda la red manualmente; eso brinda más seguridad.
-* Uso de proxy's para mayor privacidad.
+* Uso de proxies para mayor privacidad.
 * Sistema antí-fuerza bruta. Es relativo. Relativo según las configuraciones que ejerce el administrador y el mismo usuario. porque el administrdor decide cómo **Evie**, va a bloquear a un usuario, cuándo y porqué. Dejaré la explicación más adelante.
 * Los complementos se pueden actualizar de forma transparente o lo que quiere decir, que sí tenemos una máquina infectada podremos cambiar el código desde el servidor y ejecutarlo en la máquina correspondiente.
 * Además del cifrado que viene incorporado, podemos agregarle una capa más con **https**
@@ -404,7 +404,7 @@ El resultado en Python sería:
 
 Ejemplo realista:
 
-Es mejor si usamos un ejemplo más serio, cómo por ejemplo configurar la lista de proxy's que usara **Evie** o Usar algún complemento de **Syndicate** que necesite parámetros:
+Es mejor si usamos un ejemplo más serio, cómo por ejemplo configurar la lista de proxies que usara **Evie** o Usar algún complemento de **Syndicate** que necesite parámetros:
 
 Ejemplo de configuración de un proxy. *En mi caso voy a configurar Tor y un proxy que salio de un sitio cualquiera*
 
@@ -420,7 +420,7 @@ En la salida de Python:
 
 *¿Sencillo no? :'v*
 
-Algo así tenemos que hacer en la [Configuración](auto-config.sh) de los proxy's para usarlo en [Evie](evie.py).
+Algo así tenemos que hacer en la [Configuración](auto-config.sh) de los proxies para usarlo en [Evie](evie.py).
 
 Ahora otro ejemplo:
 
